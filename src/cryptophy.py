@@ -1,8 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+
 '''
 Main File
 Created on 10/set/2013
+Licensed under GPL License, Version 3.0 (http://www.gnu.org/licenses/gpl.html)
 
 @version: 0.1
 @author: 0x7c0
@@ -18,6 +20,17 @@ from core.thread import IRead, IWrit
 
 
 class Main( object ):
+	'''
+	main class for inizialize correct encrypt class, queue, read and write file
+	@param string root	root of read file
+	@param string name	root of write file
+	@param string psw	user password
+	@param int size		for encryption module
+	@param char action	'E' for encryption or 'D' for decription
+	@param char typ		type of encryption module
+	@param bool purge	purge root file
+	'''
+
 	def __init__( self, root, name, psw, size, action, typ, purge = False ):
 		self.root = root
 		self.name = name
@@ -34,6 +47,10 @@ class Main( object ):
 		elif ( typ == 'X' ):
 			from core.thread import XorCrypto
 			self.cr = XorCrypto( psw, action, self.r, self.w )
+		elif ( typ == 'H' ):
+			pass
+			# from core.thread import HasCrypto
+			# self.cr = HasCrypto( psw, size, action, self.r, self.w )
 		self.rd = IRead( root, self.r, action )    # read
 		self.wd = IWrit( name, self.w, action )    # write
 		self.go( purge )
@@ -60,11 +77,13 @@ class Main( object ):
 if __name__ == '__main__':
 
 	def M_ext( name ):
+		''' return true if file extension is .cr '''
 		if( name[-3:] == EXT ):
 			return True
 		else:
 			return False
 	def M_file( v ):
+		''' type for argparse '''
 		from argparse import ArgumentTypeError
 		root = u_DirAbs( path.join( v ) )
 		if( not u_FileExists( root ) ): raise ArgumentTypeError( 'File not found!' )
@@ -81,7 +100,7 @@ if __name__ == '__main__':
 
 	group2 = parser.add_subparsers()
 	enc = group2.add_parser( 'T', help = 'type of encryption/decryption' )
-	enc.add_argument( 'type', nargs = 1, type = str, choices = ['aes', 'base', 'xor'], default = ['aes'] )
+	enc.add_argument( 'type', nargs = 1, type = str, choices = ['aes', 'base', 'xor', 'hash'], default = ['aes'] )
 
 	group3 = parser.add_mutually_exclusive_group( required = True )
 	group3.add_argument( '-E', '--encrypt', action = 'store_true', default = False, help = 'encrypt your file' )
@@ -92,7 +111,6 @@ if __name__ == '__main__':
 	group4.add_argument( '-n', metavar = 'Name', nargs = 1, type = str, help = 'set name of your new file' )
 	group4.add_argument( '-p', action = 'store_true', default = False, help = 'purge original file after the process' )
 
-	# parser.add_argument( '-p', metavar = 'Password', nargs = 1, type = str, help = 'Insert password for encoding.', required = True )
 	args = parser.parse_args()
 	del argparse
 
@@ -104,7 +122,7 @@ if __name__ == '__main__':
 			name = path.join( path.dirname( root ), args.n[0] )
 		elif( args.decrypt and M_ext( root ) ):    # se decrypt e nome .cr
 			name = root[:-3]
-		elif( args.encrypt ):    # se encrypt
+		elif( args.encrypt ):    # if encrypt
 			name = '%s%s' % ( root, EXT )
 		else:
 			name = path.join( path.dirname( root ), '%s%s' % ( '2_', path.basename( root ) ) )
@@ -129,6 +147,9 @@ if __name__ == '__main__':
 			else: size = 64
 		elif( args.type[0] == 'xor' ):
 			typ = 'X'
+			size = 0
+		elif( args.type[0] == 'hash' ):
+			typ = 'H'
 			size = 0
 		else:
 			typ = 'A'

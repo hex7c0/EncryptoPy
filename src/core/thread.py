@@ -1,6 +1,7 @@
 '''
 Thread classes
 Created on 10/set/2013
+Licensed under GPL License, Version 3.0 (http://www.gnu.org/licenses/gpl.html)
 
 @version: 0.1
 @author: 0x7c0
@@ -11,6 +12,15 @@ from queue import Empty
 from threading import Thread
 
 class AesCrypto( Thread ):
+	'''
+	class for encoding with aes encryption
+	@param string psw	user password
+	@param int size		type of aes, [16,24,32]
+	@param char typ		type of encryption module
+	@param queue r		queue for read data
+	@param queue q		queue for write data
+	'''
+
 	def __init__( self, psw, size, typ, r, w ):
 		from core.aes import AESModeOfOperation
 		Thread.__init__( self, name = 'T_Crypto', args = ( r, w, ) )
@@ -27,6 +37,7 @@ class AesCrypto( Thread ):
 	def terminate( self ):
 		self._running = False
 	def run( self ):
+		''' start thread '''
 		try:
 			if( self.type == 'E' ):
 				self.makeIv()
@@ -49,6 +60,7 @@ class AesCrypto( Thread ):
 		self._running = True
 		return
 	def makeHex( self ):
+		''' hex user password '''
 		for i in range( 0, self.size ):
 			try:
 				self.hex.append( int( ord( self.psw[i] ) ) )
@@ -56,6 +68,7 @@ class AesCrypto( Thread ):
 				self.hex.append( i )
 		return
 	def makeIv( self ):
+		''' make random iv for aes block '''
 		from os import urandom
 		for i in range( 0, self.size ):
 			try:
@@ -64,6 +77,15 @@ class AesCrypto( Thread ):
 				self.iv.append( i )
 		return
 class BasCrypto( Thread ):
+	'''
+	class for encoding with base
+	@param string psw	user password
+	@param int size		type of aes, [16,32,64]
+	@param char typ		type of encryption module
+	@param queue r		queue for read data
+	@param queue q		queue for write data
+	'''
+
 	def __init__( self, psw, size, typ, r, w ):
 		Thread.__init__( self, name = 'T_Crypto', args = ( r, w, ) )
 		self.queR = r
@@ -74,6 +96,7 @@ class BasCrypto( Thread ):
 	def terminate( self ):
 		self._running = False
 	def run( self ):
+		''' start thread '''
 		try:
 			if( self.type == 'E' ):
 				self.queW.put( self.psw )
@@ -100,6 +123,10 @@ class BasCrypto( Thread ):
 		self._running = True
 		return
 	def encode(self, i):
+		'''
+		encode data with select base
+		@param bin i	binary data
+		'''
 		if(self.size==16):
 			from base64 import b16encode;return b16encode( i )
 		elif( self.size == 32 ):
@@ -107,6 +134,10 @@ class BasCrypto( Thread ):
 		else:
 			from base64 import b64encode;return b64encode( i )
 	def decode( self, i ):
+		'''
+		decode data with select base
+		@param bin i	binary data
+		'''
 		if( self.size == 16 ):
 			from base64 import b16decode;return b16decode( i )
 		elif( self.size == 32 ):
@@ -114,6 +145,13 @@ class BasCrypto( Thread ):
 		else:
 			from base64 import b64decode;return b64decode( i )
 class XorCrypto( Thread ):
+	'''
+	class for encoding with xor encryption
+	@param string psw	user password
+	@param char typ		type of encryption module
+	@param queue r		queue for read data
+	@param queue q		queue for write data
+	'''
 	def __init__( self, psw, typ, r, w ):
 		Thread.__init__( self, name = 'T_Crypto', args = ( r, w, ) )
 		self.queR = r
@@ -123,6 +161,7 @@ class XorCrypto( Thread ):
 	def terminate( self ):
 		self._running = False
 	def run( self ):
+		''' start thread '''
 		try:
 			if( self.type == 'E' ):
 				self.queW.put( '%' )    # useless
@@ -144,6 +183,10 @@ class XorCrypto( Thread ):
 		self._running = True
 		return
 	def xor( self, data ):
+		'''
+		encode/decode data with xor
+		@param bin dara	binary data
+		'''
 		from itertools import cycle
 		a = bytearray()
 		for ( x, y ) in zip( data, cycle( self.psw ) ):
@@ -152,6 +195,13 @@ class XorCrypto( Thread ):
 			a.append( x ^ y )
 		return a
 class IRead( Thread ):
+	'''
+	class for read normal/encrypted file
+	@param string file	root of write file
+	@param queue r		queue for read data
+	@param char typ		type of encryption module
+	'''
+
 	def __init__( self, file, r, typ ):
 		Thread.__init__( self, name = 'T_R_%s' % ( file, ), args = ( r, ) )
 		self.file = file
@@ -182,6 +232,13 @@ class IRead( Thread ):
 		self._running = True
 		return
 class IWrit( Thread ):
+	'''
+	class for write encrypted/normal file
+	@param string file	root of write file
+	@param queue q		queue for write data
+	@param char typ		type of encryption module
+	'''
+
 	def __init__( self, file, q, typ ):
 		Thread.__init__( self, name = 'T_W_%s' % ( file, ), args = ( q, ) )
 		self.file = file

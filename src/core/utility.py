@@ -1,18 +1,25 @@
 '''
 Common functions
 Created on 10/set/2013
+Licensed under GPL License, Version 3.0 (http://www.gnu.org/licenses/gpl.html)
 
 @version: 0.1
 @author: 0x7c0
 '''
 
 def u_FileExists( root ):
-	'''For check file.'''
+	'''
+	check exist file
+	@param string root	root of file
+	'''
 
 	from os.path import exists, isfile
 	return exists( root ) and isfile( root )
 def u_FilePurge( who ):
-	'''eliminare file link, per eventuale cfg obsoleto'''
+	'''
+	purge file link
+	@param string who	root of file
+	'''
 
 	from os import unlink
 	from os.path import exists
@@ -20,7 +27,10 @@ def u_FilePurge( who ):
 		unlink( who )
 	return
 def u_UtCrypto( psw ):
-	'''Data una stringa, la crittografa con hash512 + hash512.digest.'''
+	'''
+	encode string with hash
+	@param string psw	password
+	'''
 
 	import hashlib    # oggetto per creare sha512
 	Hash = hashlib.sha512( str.encode( psw ) )
@@ -33,7 +43,10 @@ def u_UtCrypto( psw ):
 	Hash.update( Hash.digest() )
 	return Hash.hexdigest()
 def u_DirAbs( root ):
-	'''check root and return abs path.'''
+	'''
+	check root and return abs path
+	@param string root	root of file
+	'''
 
 	from os.path import isabs, join
 	from os import getcwd
@@ -42,8 +55,11 @@ def u_DirAbs( root ):
 	else:
 		return join( getcwd(), root )
 def u_UserCheck( regex, question ):
-	'''read stdin and return,
-	only return if match regex.'''
+	'''
+	read stdin and return if match regex
+	@param string regex		regex for match
+	@param string question	print output string
+	'''
 
 	from re import match
 	while True:
@@ -54,7 +70,10 @@ def u_UserCheck( regex, question ):
 		else:
 			print( 'Provide a correct alfanum password.' )
 def u_UserInput( question ):
-	'''question about action'''
+	'''
+	question about action
+	@param string question	print output string
+	'''
 
 	while True:
 		action = input( question )
@@ -63,8 +82,12 @@ def u_UserInput( question ):
 		elif( action.upper() == 'N' ):
 			return False
 def u_UtCrono( start, Print = True ):    # Crono old
-	'''Dato il tempo inziale di partenza (con timie.time() UnixTime).
-	Ritorna il tempo passato.'''
+	'''
+	return completion time
+	if not 'print' return time without formatting
+	@param int start	initial time
+	@param bool Print	boolean for formatting
+	'''
 
 	from time import time, gmtime, strftime
 	# prende in tempo da Unix Time
