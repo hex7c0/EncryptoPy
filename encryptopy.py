@@ -133,25 +133,29 @@ if __name__ == '__main__':
 
 		psw = u_UserCheck( r'[A-Za-z0-9@#$%^&+=]{6,20}', 'Insert your password: ' )
 
-		if( args.type[0] == 'aes' ):
-			typ = 'A'
-			if( args.k[0] == 128 ): size = 16
-			elif( args.k[0] == 192 ): size = 24
-			elif( args.k[0] == 256 ): size = 32
-			else: size = 16
-		elif( args.type[0] == 'base' ):
-			typ = 'B'
-			if( args.k[0] == 16 ): size = 16
-			elif( args.k[0] == 32 ): size = 32
-			elif( args.k[0] == 64 ): size = 64
-			else: size = 64
-		elif( args.type[0] == 'xor' ):
-			typ = 'X'
-			size = 0
-		elif( args.type[0] == 'hash' ):
-			typ = 'H'
-			size = 0
-		else:
+		try:
+			if( args.type[0] == 'aes' ):
+				typ = 'A'
+				if( args.k[0] == 128 ): size = 16
+				elif( args.k[0] == 192 ): size = 24
+				elif( args.k[0] == 256 ): size = 32
+				else: size = 16
+			elif( args.type[0] == 'base' ):
+				typ = 'B'
+				if( args.k[0] == 16 ): size = 16
+				elif( args.k[0] == 32 ): size = 32
+				elif( args.k[0] == 64 ): size = 64
+				else: size = 64
+			elif( args.type[0] == 'xor' ):
+				typ = 'X'
+				size = 0
+			elif( args.type[0] == 'hash' ):
+				typ = 'H'
+				size = 0
+			else:
+				typ = 'A'
+				size = 16
+		except AttributeError:
 			typ = 'A'
 			size = 16
 

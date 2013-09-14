@@ -92,7 +92,7 @@ def u_UtCrono( start, Print = True ):    # Crono old
 	from time import time, gmtime, strftime
 	# prende in tempo da Unix Time
 	if( Print ):
-		end = time() - start
+		end = time() - start - 2    # queue timeout
 		if ( end < 60 ):    # sec
 			return strftime( '%S sec', gmtime( end ) )
 		elif ( end < 3600 ):    # min
