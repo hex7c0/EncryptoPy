@@ -1,9 +1,9 @@
-CryptoPy
-========
+# EncryptoPy
 
-encrypt / decrypt your file with python3!
 
-========
+### encrypt / decrypt your file with python3!
+
+***
 
 type of encryption:
 
@@ -20,4 +20,4 @@ future implementation:
 
 see wiki for info
 
-https://github.com/0x7c0/EncryptoPy/wiki
+https://github.com/0x7c0/EncryptoPy/wiki/help-on
