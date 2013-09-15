@@ -42,6 +42,9 @@ class Main( object ):
 		if( typ == 'A' ):
 			from core.thread import AesCrypto
 			self.cr = AesCrypto( psw, size, action, self.r, self.w )
+		if( typ == 'D' ):
+			from core.thread import DesCrypto
+			self.cr = DesCrypto( psw, action, self.r, self.w )
 		elif( typ == 'B' ):
 			from core.thread import BasCrypto
 			self.cr = BasCrypto( size, action, self.r, self.w )
@@ -107,7 +110,7 @@ if __name__ == '__main__':
 
 	group2 = parser.add_subparsers()
 	enc = group2.add_parser( 'T', help = 'type of encryption/decryption' )
-	enc.add_argument( 'type', nargs = 1, type = str, choices = ['aes', 'base', 'xor', 'hash', 'hmac', 'crc'], default = ['aes'] )
+	enc.add_argument( 'type', nargs = 1, type = str, choices = ['aes', 'des', 'base', 'xor', 'hash', 'hmac', 'crc'], default = ['aes'] )
 
 	group3 = parser.add_mutually_exclusive_group( required = True )
 	group3.add_argument( '-E', '--encrypt', action = 'store_true', default = False, help = 'encrypt your file' )
@@ -149,6 +152,9 @@ if __name__ == '__main__':
 				elif( args.k[0] == 192 ): size = 24
 				elif( args.k[0] == 256 ): size = 32
 				else: size = 16
+			elif( args.type[0] == 'des' ):
+				typ = 'D';flag = True
+				size = 0
 			elif( args.type[0] == 'base' ):
 				typ = 'B'
 				if( args.k[0] == 16 ): size = 16
@@ -190,7 +196,7 @@ if __name__ == '__main__':
 		print()
 		quit()
 
-	if( u_UserInput( 'do you wanna %s your file? [Y/N] ' % ( question, ) ) ):
+	if( u_UserInput( 'do you wanna %s your file with %s? [Y/N] ' % ( question, args.type[0] ) ) ):
 		go = Main( root = root, name = name, psw = psw, size = size, action = action, purge = args.p, typ = typ )
 	else:
 		print('Quit')

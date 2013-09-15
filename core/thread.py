@@ -3,7 +3,7 @@ Thread classes
 Created on 10/set/2013
 Licensed under GPL License, Version 3.0 (http://www.gnu.org/licenses/gpl.html)
 
-@version: 0.2
+@version: 0.3
 @author: 0x7c0
 '''
 
@@ -76,6 +76,52 @@ class AesCrypto( Thread ):
 			except IndexError:
 				self.iv.append( i )
 		return
+class DesCrypto( Thread ):
+	'''
+	class for encoding with des encryption
+	@param string psw	user password
+	@param char typ		type of encryption module
+	@param queue r		queue for read data
+	@param queue q		queue for write data
+	'''
+
+	def __init__( self, psw, typ, r, w ):
+		from core.des import Des
+		Thread.__init__( self, name = 'T_Crypto', args = ( r, w, ) )
+		self.crypto = Des( '', self.makeHex( psw ), typ )
+		self.queR = r
+		self.queW = w
+		self.type = typ
+	def terminate( self ):
+		self._running = False
+	def run( self ):
+		''' start thread '''
+		try:
+			if( self.type == 'E' ):
+				while True:
+					try:tmp = self.queR.get( timeout = 1 )
+					except Empty:break
+					if not tmp:break
+					else:self.crypto._message = tmp;self.queW.put( self.crypto.crypt() );
+			elif( self.type == 'D' ):
+				while True:
+					try:tmp = self.queR.get( timeout = 1 );
+					except Empty:break
+					if not tmp:break
+					else:self.crypto._message = tmp;self.queW.put( self.crypto.crypt() )
+		except KeyboardInterrupt:    # Ctrl + C
+			print( 'Not finished: crypt!' )
+		self._running = True
+		return
+	def makeHex( self, psw ):
+		''' user password 8 bit long '''
+		t = ''
+		for i in range( 0, 16 , 2 ):
+			try:
+				t = '%s%s' % ( t, psw[i] )
+			except IndexError:
+				t = '%s%s' % ( t, int( i / 10 ) + 1 )
+		return str.encode( t )
 class BasCrypto( Thread ):
 	'''
 	class for encoding with base
