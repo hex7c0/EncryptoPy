@@ -6,11 +6,12 @@ Main File
 Created on 10/set/2013
 Licensed under GPL License, Version 3.0 (http://www.gnu.org/licenses/gpl.html)
 
-@version: 0.1
+@version: 0.2
 @author: 0x7c0
 '''
 
-VERSION = 0.1
+NAME = 'EncryptoPy'
+VERSION = 0.2
 EXT = '.cr'
 
 from queue import Queue
@@ -43,14 +44,19 @@ class Main( object ):
 			self.cr = AesCrypto( psw, size, action, self.r, self.w )
 		elif( typ == 'B' ):
 			from core.thread import BasCrypto
-			self.cr = BasCrypto( psw, size, action, self.r, self.w )
+			self.cr = BasCrypto( size, action, self.r, self.w )
 		elif ( typ == 'X' ):
 			from core.thread import XorCrypto
 			self.cr = XorCrypto( psw, action, self.r, self.w )
 		elif ( typ == 'H' ):
-			pass
-			# from core.thread import HasCrypto
-			# self.cr = HasCrypto( psw, size, action, self.r, self.w )
+			from core.thread import HasCrypto
+			self.cr = HasCrypto( size, self.r, self.w )
+		elif ( typ == 'M' ):
+			from core.thread import MacCrypto
+			self.cr = MacCrypto( psw, self.r, self.w )
+		elif ( typ == 'C' ):
+			from core.thread import CrcCrypto
+			self.cr = CrcCrypto( size, self.r, self.w )
 		self.rd = IRead( root, self.r, action )    # read
 		self.wd = IWrit( name, self.w, action )    # write
 		self.go( purge )
@@ -92,22 +98,23 @@ if __name__ == '__main__':
 	import argparse
 	from core.utility import u_UserInput,u_UserCheck, u_FileExists, u_DirAbs
 
-	parser = argparse.ArgumentParser( description = 'Run CryptoPhy.' )
-	parser.add_argument( '-V', '--version', action = 'version', version = VERSION )
+	parser = argparse.ArgumentParser( description = 'Run %s' % ( NAME, ) )
+	parser.add_argument( '-V', '--version', action = 'version', version = '%s version %s' % ( NAME, VERSION, ) )
+
 
 	group1 = parser.add_argument_group( title = 'required flag' )
 	group1.add_argument( '-r', metavar = 'Root', nargs = 1, type = M_file, help = 'insert root of your file', required = True )
 
 	group2 = parser.add_subparsers()
 	enc = group2.add_parser( 'T', help = 'type of encryption/decryption' )
-	enc.add_argument( 'type', nargs = 1, type = str, choices = ['aes', 'base', 'xor', 'hash'], default = ['aes'] )
+	enc.add_argument( 'type', nargs = 1, type = str, choices = ['aes', 'base', 'xor', 'hash', 'hmac', 'crc'], default = ['aes'] )
 
 	group3 = parser.add_mutually_exclusive_group( required = True )
 	group3.add_argument( '-E', '--encrypt', action = 'store_true', default = False, help = 'encrypt your file' )
 	group3.add_argument( '-D', '--decrypt', action = 'store_true', default = False, help = 'decrypt your file' )
 
 	group4 = parser.add_argument_group( title = 'optional flag' )
-	group4.add_argument( '-k', metavar = 'Key', nargs = 1, type = int, choices = [16, 32, 64, 128, 192, 256], default = [128], help = 'set the size of the key' )
+	group4.add_argument( '-k', metavar = 'Key', nargs = 1, type = int, choices = [1, 5, 16, 31, 32, 64, 128, 192, 160, 224, 256, 384, 512], default = [128], help = 'set the size of the key' )
 	group4.add_argument( '-n', metavar = 'Name', nargs = 1, type = str, help = 'set name of your new file' )
 	group4.add_argument( '-p', action = 'store_true', default = False, help = 'purge original file after the process' )
 
@@ -116,6 +123,7 @@ if __name__ == '__main__':
 
 	try:
 		name = '';psw = '';size = '';action = ''; purge = ''; typ = ''
+		flag = False
 
 		root = args.r[0]
 		if( args.n ):    # se ho name
@@ -131,11 +139,12 @@ if __name__ == '__main__':
 				print( 'Change file name at start' )
 				quit()
 
-		psw = u_UserCheck( r'[A-Za-z0-9@#$%^&+=]{6,20}', 'Insert your password: ' )
+		if( args.decrypt ): action = 'D';question = 'decrypt'
+		elif( args.encrypt ): action = 'E';question = 'encrypt'
 
 		try:
 			if( args.type[0] == 'aes' ):
-				typ = 'A'
+				typ = 'A';flag = True
 				if( args.k[0] == 128 ): size = 16
 				elif( args.k[0] == 192 ): size = 24
 				elif( args.k[0] == 256 ): size = 32
@@ -147,20 +156,36 @@ if __name__ == '__main__':
 				elif( args.k[0] == 64 ): size = 64
 				else: size = 64
 			elif( args.type[0] == 'xor' ):
-				typ = 'X'
+				typ = 'X';flag = True
 				size = 0
 			elif( args.type[0] == 'hash' ):
-				typ = 'H'
+				typ = 'H';action = 'E';question = 'encrypt'
+				if( args.k[0] == 1 ): size = 1    # dsa
+				elif( args.k[0] == 5 ): size = 5    # md5
+				elif( args.k[0] == 160 ): size = 160    # ripemd
+				elif( args.k[0] == 224 ): size = 224    # sha2
+				elif( args.k[0] == 256 ): size = 256
+				elif( args.k[0] == 384 ): size = 384
+				elif( args.k[0] == 512 ): size = 512
+				else:size = 5
+			elif( args.type[0] == 'hmac' ):
+				typ = 'M';action = 'E';question = 'encrypt';flag = True
 				size = 0
+			elif( args.type[0] == 'crc' ):
+				typ = 'C';action = 'E';question = 'encrypt'
+				if( args.k[0] == 31 ): size = 31    # adler
+				elif( args.k[0] == 32 ): size = 32    # crc
+				else:size = 32
 			else:
-				typ = 'A'
+				typ = 'A';flag = True
 				size = 16
 		except AttributeError:
-			typ = 'A'
+			typ = 'A';flag = True
 			size = 16
 
-		if( args.decrypt ): action = 'D';question='decrypt'
-		elif( args.encrypt ): action = 'E';question='encrypt'
+		if( flag ):
+			psw = u_UserCheck( r'[A-Za-z0-9@#$%^&+=]{6,20}', 'Insert your password: ' )
+
 	except KeyboardInterrupt:    # Ctrl + C
 		print()
 		quit()

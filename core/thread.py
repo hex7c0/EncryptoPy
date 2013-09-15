@@ -3,7 +3,7 @@ Thread classes
 Created on 10/set/2013
 Licensed under GPL License, Version 3.0 (http://www.gnu.org/licenses/gpl.html)
 
-@version: 0.1
+@version: 0.2
 @author: 0x7c0
 '''
 
@@ -79,18 +79,16 @@ class AesCrypto( Thread ):
 class BasCrypto( Thread ):
 	'''
 	class for encoding with base
-	@param string psw	user password
 	@param int size		type of aes, [16,32,64]
 	@param char typ		type of encryption module
 	@param queue r		queue for read data
 	@param queue q		queue for write data
 	'''
 
-	def __init__( self, psw, size, typ, r, w ):
+	def __init__( self, size, typ, r, w ):
 		Thread.__init__( self, name = 'T_Crypto', args = ( r, w, ) )
 		self.queR = r
 		self.queW = w
-		self.psw = psw
 		self.size = size
 		self.type = typ
 	def terminate( self ):
@@ -99,7 +97,6 @@ class BasCrypto( Thread ):
 		''' start thread '''
 		try:
 			if( self.type == 'E' ):
-				self.queW.put( self.psw )
 				while True:
 					try:tmp = self.queR.get( timeout = 1 )
 					except Empty:break
@@ -108,9 +105,6 @@ class BasCrypto( Thread ):
 						try:self.queW.put( self.encode( tmp ) );
 						except TypeError:print( 'File not correct!' );return
 			elif( self.type == 'D' ):
-				try:IV = self.queR.get( timeout = 1 )    # iv
-				except Empty:return
-				if( IV != self.psw ):print( 'Password Wrong!' );return
 				while True:
 					try:tmp = self.queR.get( timeout = 1 );
 					except Empty:break
@@ -164,15 +158,12 @@ class XorCrypto( Thread ):
 		''' start thread '''
 		try:
 			if( self.type == 'E' ):
-				self.queW.put( '%' )    # useless
 				while True:
 					try:tmp = self.queR.get( timeout = 1 )
 					except Empty:break
 					if not tmp:break
 					else:self.queW.put( self.xor( tmp ) )
 			elif( self.type == 'D' ):
-				try:self.queR.get( timeout = 1 )    # useless
-				except Empty:return
 				while True:
 					try:tmp = self.queR.get( timeout = 1 );
 					except Empty:break
@@ -194,6 +185,123 @@ class XorCrypto( Thread ):
 			if( type( y ) == str ):y = ord( y )
 			a.append( x ^ y )
 		return a
+class HasCrypto( Thread ):
+	'''
+	class for encoding with hash
+	@param int size		type of hash, [1,5,160,224,256,384,512]
+	@param queue r		queue for read data
+	@param queue q		queue for write data
+	'''
+
+	def __init__( self, size, r, w ):
+		Thread.__init__( self, name = 'T_Crypto', args = ( r, w, ) )
+		self.queR = r
+		self.queW = w
+		self.hash = ''
+		self.build( size )
+	def terminate( self ):
+		self._running = False
+	def run( self ):
+		''' start thread '''
+		try:
+			while True:
+				try:tmp = self.queR.get( timeout = 1 );
+				except Empty:break
+				if not tmp:break
+				else:self.hash.update( tmp )
+			self.queW.put( self.hash.digest() )
+			print( 'Hash: %s' % ( self.hash.hexdigest(), ) )
+			return
+		except KeyboardInterrupt:    # Ctrl + C
+			print( 'Not finished: crypt!' )
+		self._running = True
+		return
+	def build( self, size ):
+		'''
+		build correct hash algorithm
+		@param int size	type of algorithms
+		'''
+		import hashlib
+		if( size == 1 ): self.hash = hashlib.new( 'DSA' )    # dsa
+		elif( size == 5 ): self.hash = hashlib.new( 'MD5' )    # md5
+		elif( size == 160 ): self.hash = hashlib.new( 'RIPEMD160' )    # ripemd
+		elif( size == 224 ): self.hash = hashlib.new( 'SHA224' )    # sha2
+		elif( size == 256 ): self.hash = hashlib.new( 'SHA256' )
+		elif( size == 384 ): self.hash = hashlib.new( 'SHA384' )
+		elif( size == 512 ): self.hash = hashlib.new( 'SHA512' )
+		return
+class MacCrypto( Thread ):
+	'''
+	class for encoding with hmac
+	@param string psw	user password
+	@param queue r		queue for read data
+	@param queue q		queue for write data
+	'''
+
+	def __init__( self, psw, r, w ):
+		import hmac
+		Thread.__init__( self, name = 'T_Crypto', args = ( r, w, ) )
+		self.queR = r
+		self.queW = w
+		self.hash = hmac.new( str.encode( psw ) )
+	def terminate( self ):
+		self._running = False
+	def run( self ):
+		''' start thread '''
+		try:
+			while True:
+				try:tmp = self.queR.get( timeout = 1 );
+				except Empty:break
+				if not tmp:break
+				else:self.hash.update( tmp )
+			self.queW.put( self.hash.digest() )
+			print( 'Hash: %s' % ( self.hash.hexdigest(), ) )
+			return
+		except KeyboardInterrupt:    # Ctrl + C
+			print( 'Not finished: crypt!' )
+		self._running = True
+		return
+class CrcCrypto( Thread ):
+	'''
+	class for encoding with crc
+	@param int size		type of hash, [31,32]
+	@param queue r		queue for read data
+	@param queue q		queue for write data
+	'''
+
+	def __init__( self, size, r, w ):
+		Thread.__init__( self, name = 'T_Crypto', args = ( r, w, ) )
+		self.queR = r
+		self.queW = w
+		self.size = size
+		self.hash = 0
+	def terminate( self ):
+		self._running = False
+	def run( self ):
+		''' start thread '''
+		try:
+			while True:
+				try:tmp = self.queR.get( timeout = 1 );
+				except Empty:break
+				if not tmp:break
+				else:self.update( tmp )
+			self.queW.put( self.hash )
+			print( 'Checksum: %s' % ( self.hash, ) )
+			return
+		except KeyboardInterrupt:    # Ctrl + C
+			print( 'Not finished: crypt!' )
+		self._running = True
+		return
+	def update( self, data ):
+		'''
+		build correct hash algorithm
+		@param byte data	data of file
+		'''
+		import zlib
+		if( self.size == 31 ): self.hash += zlib.adler32( data )    # adler
+		elif( self.size == 32 ): self.hash += zlib.crc32( data )    # crc
+		return
+
 class IRead( Thread ):
 	'''
 	class for read normal/encrypted file
