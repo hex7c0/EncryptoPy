@@ -16,6 +16,10 @@ class Vigenere( object ):
 		self.key = key
 	
 	def encrypt( self, raw ):
+		'''
+		encrypt function
+		@param byte raw		read file
+		'''
 		
 		t = bytearray()
 		for ( x, y ) in zip( raw, cycle( self.key ) ):
@@ -25,6 +29,10 @@ class Vigenere( object ):
 			except ValueError:t.append( ( x - 256 ) + y )
 		return t
 	def decrypt( self, raw ):
+		'''
+		decrypt function function
+		@param byte raw		read file
+		'''
 
 		t = bytearray()
 		for ( x, y ) in zip( raw, cycle( self.key ) ):

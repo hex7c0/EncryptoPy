@@ -3,9 +3,10 @@ aes.py: implements AES - Advanced Encryption Standard
 From the SlowAES project, http://code.google.com/p/slowaes/
 Copyright (c) 2008				Josh Davis ( http://www.josh-davis.org ),
 								Alex Martelli ( http://www.aleax.it )
+Licensed under the Apache License, Version 2.0 (http://www.apache.org/licenses/)
 Ported from C code written by	Laurent Haan ( http://www.progressive-coding.com )
 Tweak by						0x7c0 (http://hex7c0.tk/)
-Licensed under the Apache License, Version 2.0 (http://www.apache.org/licenses/)
+Licensed under GPL License, Version 3.0 (http://www.gnu.org/licenses/gpl.html)
 
 Created on 10/set/2013
 @version: 0.1
@@ -654,3 +655,32 @@ def generateRandomKey(keysize):
 		emsg = 'Invalid keysize, %s. Should be one of (16, 24, 32).'
 		raise ValueError( emsg % keysize )
 	return urandom( keysize )
+
+def makeHex( psw, size ):
+	'''
+	hex user password
+	@param string psw	user password
+	@param int size		type of aes, [16,24,32]
+	'''
+
+	hex = []
+	for i in range( 0, size ):
+		try:
+			hex.append( int( ord( psw[i] ) ) )
+		except IndexError:
+			hex.append( i )
+	return hex
+def makeIv( size ):
+	'''
+	make random iv for aes block
+	@param int size		type of aes, [16,24,32]
+	'''
+
+	iv = []
+	from os import urandom
+	for i in range( 0, size ):
+		try:
+			iv.append( int.from_bytes( urandom( 1 ), 'little' ) )
+		except IndexError:
+			iv.append( i )
+	return iv

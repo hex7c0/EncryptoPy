@@ -4,6 +4,8 @@ http://en.wikipedia.org/wiki/Playfair_cipher
 Author			0x7c0 (http://hex7c0.tk/)
 Licensed under GPL License, Version 3.0 (http://www.gnu.org/licenses/gpl.html)
 
+due limitation of chiper, use this module only with normal text
+
 Created on 17/set/2013
 @version: 0.1
 @author: 0x7c0
@@ -16,9 +18,11 @@ EXCEPT = 255
 EXCEPT2 = 5
 
 class Playfair( object ):
-	
-
 	def __init__( self, key ):
+		'''
+		costructor
+		@param string key	user passoword
+		'''
 
 		self.key = [ [ 0 for i in range( MATRIX ) ] for j in range( MATRIX ) ]
 		self.buildCiph(key)
@@ -26,6 +30,10 @@ class Playfair( object ):
 		'''self.test = [ 0 for i in range( 256 ) ]'''
 
 	def encrypt( self, raw ):
+		'''
+		encrypt function
+		@param byte raw		read file
+		'''
 
 		t = bytearray()
 		data = self.buildDig( raw )
@@ -60,6 +68,10 @@ class Playfair( object ):
 				t.append( self.key[ ( x2[0] ) ][ x1[1] ] )    # same row,opposite column
 		return t
 	def decrypt( self, raw ):
+		'''
+		decrypt function
+		@param byte raw		read file
+		'''
 
 		t = [];
 		data = self.buildDig( raw )

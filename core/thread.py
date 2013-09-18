@@ -13,7 +13,7 @@ from threading import Thread
 
 class AesCrypto( Thread ):
 	'''
-	class for encoding with aes encryption
+	wrapper class for encoding with aes encryption
 	@param string psw	user password
 	@param int size		type of aes, [16,24,32]
 	@param char typ		type of encryption module
@@ -22,25 +22,22 @@ class AesCrypto( Thread ):
 	'''
 
 	def __init__( self, psw, size, typ, r, w ):
-		from core.aes import AESModeOfOperation
+		from modules.aes import AESModeOfOperation,makeHex,makeIv
 		Thread.__init__( self, name = 'T_Crypto', args = ( r, w, ) )
 		self.crypto = AESModeOfOperation()
 		self.queR = r
 		self.queW = w
-		self.psw = psw
 		self.size = size
 		self.type = typ
 		self.mode = 1
-		self.hex = []
-		self.iv = []
-		self.makeHex()
+		self.hex = makeHex(psw,size)
+		self.iv = makeIv( size )
 	def terminate( self ):
 		self._running = False
 	def run( self ):
 		''' start thread '''
 		try:
 			if( self.type == 'E' ):
-				self.makeIv()
 				self.queW.put( self.iv )
 				while True:
 					try:tmp = self.queR.get( timeout = 1 )
@@ -59,26 +56,9 @@ class AesCrypto( Thread ):
 			print( 'Not finished: crypt!' )
 		self._running = True
 		return
-	def makeHex( self ):
-		''' hex user password '''
-		for i in range( 0, self.size ):
-			try:
-				self.hex.append( int( ord( self.psw[i] ) ) )
-			except IndexError:
-				self.hex.append( i )
-		return
-	def makeIv( self ):
-		''' make random iv for aes block '''
-		from os import urandom
-		for i in range( 0, self.size ):
-			try:
-				self.iv.append( int.from_bytes( urandom( 1 ), 'little' ) )
-			except IndexError:
-				self.iv.append( i )
-		return
 class DesCrypto( Thread ):
 	'''
-	class for encoding with des encryption
+	wrapper class for encoding with des encryption
 	@param string psw	user password
 	@param char typ		type of encryption module
 	@param queue r		queue for read data
@@ -86,9 +66,9 @@ class DesCrypto( Thread ):
 	'''
 
 	def __init__( self, psw, typ, r, w ):
-		from core.des import Des
+		from modules.des import Des, makeHex
 		Thread.__init__( self, name = 'T_Crypto', args = ( r, w, ) )
-		self.crypto = Des( '', self.makeHex( psw ), typ )
+		self.crypto = Des( '', makeHex( psw ), typ )
 		self.queR = r
 		self.queW = w
 		self.type = typ
@@ -113,29 +93,21 @@ class DesCrypto( Thread ):
 			print( 'Not finished: crypt!' )
 		self._running = True
 		return
-	def makeHex( self, psw ):
-		''' user password 8 bit long '''
-		t = ''
-		for i in range( 0, 16 , 2 ):
-			try:
-				t = '%s%s' % ( t, psw[i] )
-			except IndexError:
-				t = '%s%s' % ( t, int( i / 10 ) + 1 )
-		return str.encode( t )
 class BasCrypto( Thread ):
 	'''
-	class for encoding with base
-	@param int size		type of aes, [16,32,64]
+	wrapper class for encoding with base
+	@param int size		type of base, [16,32,64]
 	@param char typ		type of encryption module
 	@param queue r		queue for read data
 	@param queue q		queue for write data
 	'''
 
 	def __init__( self, size, typ, r, w ):
+		from modules.base import Base
 		Thread.__init__( self, name = 'T_Crypto', args = ( r, w, ) )
+		self.crypto = Base( size )
 		self.queR = r
 		self.queW = w
-		self.size = size
 		self.type = typ
 	def terminate( self ):
 		self._running = False
@@ -148,7 +120,7 @@ class BasCrypto( Thread ):
 					except Empty:break
 					if not tmp:break
 					else:
-						try:self.queW.put( self.encode( tmp ) );
+						try:self.queW.put( self.crypto.encode( tmp ) );
 						except TypeError:print( 'File not correct!' );return
 			elif( self.type == 'D' ):
 				while True:
@@ -156,47 +128,27 @@ class BasCrypto( Thread ):
 					except Empty:break
 					if not tmp:break
 					else:
-						try:self.queW.put( self.decode( tmp ) )
+						try:self.queW.put( self.crypto.decode( tmp ) )
 						except TypeError:print( 'File not correct!' );return
 		except KeyboardInterrupt:    # Ctrl + C
 			print( 'Not finished: crypt!' )
 		self._running = True
 		return
-	def encode(self, i):
-		'''
-		encode data with select base
-		@param bin i	binary data
-		'''
-		if(self.size==16):
-			from base64 import b16encode;return b16encode( i )
-		elif( self.size == 32 ):
-			from base64 import b32encode;return b32encode( i )
-		else:
-			from base64 import b64encode;return b64encode( i )
-	def decode( self, i ):
-		'''
-		decode data with select base
-		@param bin i	binary data
-		'''
-		if( self.size == 16 ):
-			from base64 import b16decode;return b16decode( i )
-		elif( self.size == 32 ):
-			from base64 import b32decode;return b32decode( i )
-		else:
-			from base64 import b64decode;return b64decode( i )
 class XorCrypto( Thread ):
 	'''
-	class for encoding with xor encryption
+	wrapper class for encoding with xor encryption
 	@param string psw	user password
 	@param char typ		type of encryption module
 	@param queue r		queue for read data
 	@param queue q		queue for write data
 	'''
+	
 	def __init__( self, psw, typ, r, w ):
+		from modules.xor import Xor
 		Thread.__init__( self, name = 'T_Crypto', args = ( r, w, ) )
+		self.crypto = Xor( psw )
 		self.queR = r
 		self.queW = w
-		self.psw = psw
 		self.type = typ
 	def terminate( self ):
 		self._running = False
@@ -219,21 +171,9 @@ class XorCrypto( Thread ):
 			print( 'Not finished: crypt!' )
 		self._running = True
 		return
-	def xor( self, data ):
-		'''
-		encode/decode data with xor
-		@param bin dara	binary data
-		'''
-		from itertools import cycle
-		a = bytearray()
-		for ( x, y ) in zip( data, cycle( self.psw ) ):
-			if( type( x ) == str ):x = ord( x )
-			if( type( y ) == str ):y = ord( y )
-			a.append( x ^ y )
-		return a
 class HasCrypto( Thread ):
 	'''
-	class for encoding with hash
+	wrapper class for encoding with hash
 	@param int size		type of hash, [1,5,160,224,256,384,512]
 	@param queue r		queue for read data
 	@param queue q		queue for write data
@@ -278,7 +218,7 @@ class HasCrypto( Thread ):
 		return
 class MacCrypto( Thread ):
 	'''
-	class for encoding with hmac
+	wrapper class for encoding with hmac
 	@param string psw	user password
 	@param queue r		queue for read data
 	@param queue q		queue for write data
@@ -309,7 +249,7 @@ class MacCrypto( Thread ):
 		return
 class CrcCrypto( Thread ):
 	'''
-	class for encoding with crc
+	wrapper class for encoding with crc
 	@param int size		type of hash, [31,32]
 	@param queue r		queue for read data
 	@param queue q		queue for write data
@@ -357,8 +297,8 @@ class VigCrypto( Thread ):
 	'''
 
 	def __init__( self, typ, psw, r, w ):
+		from modules.vigenere import Vigenere
 		Thread.__init__( self, name = 'T_Crypto', args = ( r, w, ) )
-		from core.vigenere import Vigenere
 		self.crypto = Vigenere( psw )
 		self.type = typ
 		self.queR = r
@@ -394,8 +334,8 @@ class PlaCrypto( Thread ):
 	'''
 
 	def __init__( self, typ, psw, r, w ):
-		Thread.__init__( self, name = 'T_Crypto', args = ( r, w, ) )
 		from modules.playfair import Playfair
+		Thread.__init__( self, name = 'T_Crypto', args = ( r, w, ) )
 		self.crypto = Playfair( psw )
 		self.type = typ
 		self.queR = r
@@ -411,14 +351,12 @@ class PlaCrypto( Thread ):
 					except Empty:break
 					if not tmp:break
 					else:self.queW.put( self.crypto.encrypt( tmp ) )
-
 			elif( self.type == 'D' ):
 				while True:
 					try:tmp = self.queR.get( timeout = 1 );
 					except Empty:break
 					if not tmp:break
 					else:self.queW.put( self.crypto.decrypt( tmp ) )
-
 		except KeyboardInterrupt:    # Ctrl + C
 			print( 'Not finished: crypt!' )
 		self._running = True
@@ -478,20 +416,25 @@ class IWrit( Thread ):
 		self._running = False
 	def run( self ):
 		try:
-			with open( self.file, 'w+b' ) as File:
-				if( self.type == 'E' ):
-					from pickle import dump
-					while True:
-						try:tmp = self.que.get( timeout = 2 )
-						except Empty:break
-						if not tmp:break
-						else:dump( tmp, File );
-				elif( self.type == 'D' ):
-					while True:
-						try:tmp = self.que.get( timeout = 2 )
-						except Empty:break
-						if not tmp:break
-						else:File.write( tmp )
+			tmp = self.que.get( timeout = 2 )
+			if( not tmp ):
+				with open( self.file, 'w+b' ) as File:
+					if( self.type == 'E' ):
+						from pickle import dump
+						dump( tmp, File );
+						while True:
+							try:tmp = self.que.get( timeout = 2 )
+							except Empty:break
+							if not tmp:break
+							else:dump( tmp, File );
+					elif( self.type == 'D' ):
+						File.write( tmp )
+						while True:
+							try:tmp = self.que.get( timeout = 2 )
+							except Empty:break
+							if not tmp:break
+							else:File.write( tmp )
+		except Empty:return
 		except KeyboardInterrupt:    # Ctrl + C
 			print( 'Not finished: write!' )
 		# print( 'Write done.' )
