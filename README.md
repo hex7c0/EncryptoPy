@@ -14,10 +14,13 @@ type of encryption/hash/checksum:
 	* hash	   dsa, md5, ripmed160, sha224, sha256, sha384, sha512
 	* hmac
 	* crc      crc32, adler32
+	* vigenè
+	* playfair
 
 future implementation:
 
 	* multiple file input
+	* encryption with chipher in row
 
 ========
 
@@ -28,6 +31,10 @@ https://github.com/0x7c0/EncryptoPy/wiki/Help
 see list of modules
 
 https://github.com/0x7c0/EncryptoPy/wiki/Module
+
+see my tests
+
+https://github.com/0x7c0/EncryptoPy/wiki/Test
 
 ========
 
