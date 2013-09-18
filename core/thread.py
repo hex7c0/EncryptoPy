@@ -160,13 +160,13 @@ class XorCrypto( Thread ):
 					try:tmp = self.queR.get( timeout = 1 )
 					except Empty:break
 					if not tmp:break
-					else:self.queW.put( self.xor( tmp ) )
+					else:self.queW.put( self.crypto.coding( tmp ) )
 			elif( self.type == 'D' ):
 				while True:
 					try:tmp = self.queR.get( timeout = 1 );
 					except Empty:break
 					if not tmp:break
-					else:self.queW.put( self.xor( tmp ) )
+					else:self.queW.put( self.crypto.coding( tmp ) )
 		except KeyboardInterrupt:    # Ctrl + C
 			print( 'Not finished: crypt!' )
 		self._running = True
@@ -180,11 +180,11 @@ class HasCrypto( Thread ):
 	'''
 
 	def __init__( self, size, r, w ):
+		from modules.hash import Hash
 		Thread.__init__( self, name = 'T_Crypto', args = ( r, w, ) )
+		self.crypto = Hash( size )
 		self.queR = r
 		self.queW = w
-		self.hash = ''
-		self.build( size )
 	def terminate( self ):
 		self._running = False
 	def run( self ):
@@ -194,27 +194,13 @@ class HasCrypto( Thread ):
 				try:tmp = self.queR.get( timeout = 1 );
 				except Empty:break
 				if not tmp:break
-				else:self.hash.update( tmp )
-			self.queW.put( self.hash.digest() )
-			print( 'Hash: %s' % ( self.hash.hexdigest(), ) )
+				else:self.crypto.hash.update( tmp )
+			self.queW.put( self.crypto.hash.digest() )
+			self.crypto.out()
 			return
 		except KeyboardInterrupt:    # Ctrl + C
 			print( 'Not finished: crypt!' )
 		self._running = True
-		return
-	def build( self, size ):
-		'''
-		build correct hash algorithm
-		@param int size	type of algorithms
-		'''
-		import hashlib
-		if( size == 1 ): self.hash = hashlib.new( 'DSA' )    # dsa
-		elif( size == 5 ): self.hash = hashlib.new( 'MD5' )    # md5
-		elif( size == 160 ): self.hash = hashlib.new( 'RIPEMD160' )    # ripemd
-		elif( size == 224 ): self.hash = hashlib.new( 'SHA224' )    # sha2
-		elif( size == 256 ): self.hash = hashlib.new( 'SHA256' )
-		elif( size == 384 ): self.hash = hashlib.new( 'SHA384' )
-		elif( size == 512 ): self.hash = hashlib.new( 'SHA512' )
 		return
 class MacCrypto( Thread ):
 	'''
@@ -225,11 +211,11 @@ class MacCrypto( Thread ):
 	'''
 
 	def __init__( self, psw, r, w ):
-		import hmac
+		from modules.hmac import Hmac
 		Thread.__init__( self, name = 'T_Crypto', args = ( r, w, ) )
+		self.crypto = Hmac( psw )
 		self.queR = r
 		self.queW = w
-		self.hash = hmac.new( str.encode( psw ) )
 	def terminate( self ):
 		self._running = False
 	def run( self ):
@@ -239,9 +225,9 @@ class MacCrypto( Thread ):
 				try:tmp = self.queR.get( timeout = 1 );
 				except Empty:break
 				if not tmp:break
-				else:self.hash.update( tmp )
-			self.queW.put( self.hash.digest() )
-			print( 'Hash: %s' % ( self.hash.hexdigest(), ) )
+				else:self.crypto.hash.update( tmp )
+			self.queW.put( self.crypto.hash.digest() )
+			self.crypto.out()
 			return
 		except KeyboardInterrupt:    # Ctrl + C
 			print( 'Not finished: crypt!' )
@@ -256,11 +242,11 @@ class CrcCrypto( Thread ):
 	'''
 
 	def __init__( self, size, r, w ):
+		from modules.crc import Crc
 		Thread.__init__( self, name = 'T_Crypto', args = ( r, w, ) )
+		self.crypto = Crc( size )
 		self.queR = r
 		self.queW = w
-		self.size = size
-		self.hash = 0
 	def terminate( self ):
 		self._running = False
 	def run( self ):
@@ -270,22 +256,13 @@ class CrcCrypto( Thread ):
 				try:tmp = self.queR.get( timeout = 1 );
 				except Empty:break
 				if not tmp:break
-				else:self.update( tmp )
-			self.queW.put( self.hash )
-			print( 'Checksum: %s' % ( self.hash, ) )
+				else:self.crypto.update( tmp )
+			self.queW.put( self.crypto.hash )
+			self.crypto.out()
 			return
 		except KeyboardInterrupt:    # Ctrl + C
 			print( 'Not finished: crypt!' )
 		self._running = True
-		return
-	def update( self, data ):
-		'''
-		build correct hash algorithm
-		@param byte data	data of file
-		'''
-		import zlib
-		if( self.size == 31 ): self.hash += zlib.adler32( data )    # adler
-		elif( self.size == 32 ): self.hash += zlib.crc32( data )    # crc
 		return
 class VigCrypto( Thread ):
 	'''
@@ -416,24 +393,23 @@ class IWrit( Thread ):
 		self._running = False
 	def run( self ):
 		try:
-			tmp = self.que.get( timeout = 2 )
-			if( not tmp ):
-				with open( self.file, 'w+b' ) as File:
-					if( self.type == 'E' ):
-						from pickle import dump
-						dump( tmp, File );
-						while True:
-							try:tmp = self.que.get( timeout = 2 )
-							except Empty:break
-							if not tmp:break
-							else:dump( tmp, File );
-					elif( self.type == 'D' ):
-						File.write( tmp )
-						while True:
-							try:tmp = self.que.get( timeout = 2 )
-							except Empty:break
-							if not tmp:break
-							else:File.write( tmp )
+			tmp = self.que.get( timeout = 4 )
+			with open( self.file, 'w+b' ) as File:
+				if( self.type == 'E' ):
+					from pickle import dump
+					dump( tmp, File );
+					while True:
+						try:tmp = self.que.get( timeout = 2 )
+						except Empty:break
+						if not tmp:break
+						else:dump( tmp, File );
+				elif( self.type == 'D' ):
+					File.write( tmp )
+					while True:
+						try:tmp = self.que.get( timeout = 2 )
+						except Empty:break
+						if not tmp:break
+						else:File.write( tmp )
 		except Empty:return
 		except KeyboardInterrupt:    # Ctrl + C
 			print( 'Not finished: write!' )
