@@ -1,6 +1,6 @@
 '''
 aes.py: implements AES - Advanced Encryption Standard
-from the SlowAES project, http://code.google.com/p/slowaes/
+From the SlowAES project, http://code.google.com/p/slowaes/
 Copyright (c) 2008				Josh Davis ( http://www.josh-davis.org ),
 								Alex Martelli ( http://www.aleax.it )
 Ported from C code written by	Laurent Haan ( http://www.progressive-coding.com )
@@ -11,7 +11,6 @@ Created on 10/set/2013
 @version: 0.1
 @author: 0x7c0
 '''
-
 
 def append_PKCS7_padding(s):
 	'''return s padded to a multiple of 16-bytes by PKCS7 padding'''

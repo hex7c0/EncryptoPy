@@ -60,6 +60,12 @@ class Main( object ):
 		elif ( typ == 'C' ):
 			from core.thread import CrcCrypto
 			self.cr = CrcCrypto( size, self.r, self.w )
+		elif ( typ == 'V' ):
+			from core.thread import VigCrypto
+			self.cr = VigCrypto( action, psw, self.r, self.w )
+		elif ( typ == 'P' ):
+			from core.thread import PlaCrypto
+			self.cr = PlaCrypto( action, psw, self.r, self.w )
 		self.rd = IRead( root, self.r, action )    # read
 		self.wd = IWrit( name, self.w, action )    # write
 		self.go( purge )
@@ -110,7 +116,7 @@ if __name__ == '__main__':
 
 	group2 = parser.add_subparsers()
 	enc = group2.add_parser( 'T', help = 'type of encryption/decryption' )
-	enc.add_argument( 'type', nargs = 1, type = str, choices = ['aes', 'des', 'base', 'xor', 'hash', 'hmac', 'crc'], default = ['aes'] )
+	enc.add_argument( 'type', nargs = 1, type = str, choices = ['aes', 'des', 'base', 'xor', 'hash', 'hmac', 'crc', 'vige', 'play'], default = ['aes'] )
 
 	group3 = parser.add_mutually_exclusive_group( required = True )
 	group3.add_argument( '-E', '--encrypt', action = 'store_true', default = False, help = 'encrypt your file' )
@@ -182,6 +188,12 @@ if __name__ == '__main__':
 				if( args.k[0] == 31 ): size = 31    # adler
 				elif( args.k[0] == 32 ): size = 32    # crc
 				else:size = 32
+			elif( args.type[0] == 'vige' ):
+				typ = 'V';flag = True
+				size = 0
+			elif( args.type[0] == 'play' ):
+				typ = 'P';flag = True
+				size = 0
 			else:
 				typ = 'A';flag = True
 				size = 16

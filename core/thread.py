@@ -347,6 +347,82 @@ class CrcCrypto( Thread ):
 		if( self.size == 31 ): self.hash += zlib.adler32( data )    # adler
 		elif( self.size == 32 ): self.hash += zlib.crc32( data )    # crc
 		return
+class VigCrypto( Thread ):
+	'''
+	wrapper class for encoding with Vigenère
+	@param char typ		type of encryption module
+	@param string psw	user password
+	@param queue r		queue for read data
+	@param queue q		queue for write data
+	'''
+
+	def __init__( self, typ, psw, r, w ):
+		Thread.__init__( self, name = 'T_Crypto', args = ( r, w, ) )
+		from core.vigenere import Vigenere
+		self.crypto = Vigenere( psw )
+		self.type = typ
+		self.queR = r
+		self.queW = w
+	def terminate( self ):
+		self._running = False
+	def run( self ):
+		''' start thread '''
+		try:
+			if( self.type == 'E' ):
+				while True:
+					try:tmp = self.queR.get( timeout = 1 )
+					except Empty:break
+					if not tmp:break
+					else:self.queW.put( self.crypto.encrypt( tmp ) );
+			elif( self.type == 'D' ):
+				while True:
+					try:tmp = self.queR.get( timeout = 1 );
+					except Empty:break
+					if not tmp:break
+					else:self.queW.put( self.crypto.decrypt( tmp ) )
+		except KeyboardInterrupt:    # Ctrl + C
+			print( 'Not finished: crypt!' )
+		self._running = True
+		return
+class PlaCrypto( Thread ):
+	'''
+	wrapper class for encoding with Vigenère
+	@param char typ		type of encryption module
+	@param string psw	user password
+	@param queue r		queue for read data
+	@param queue q		queue for write data
+	'''
+
+	def __init__( self, typ, psw, r, w ):
+		Thread.__init__( self, name = 'T_Crypto', args = ( r, w, ) )
+		from modules.playfair import Playfair
+		self.crypto = Playfair( psw )
+		self.type = typ
+		self.queR = r
+		self.queW = w
+	def terminate( self ):
+		self._running = False
+	def run( self ):
+		''' start thread '''
+		try:
+			if( self.type == 'E' ):
+				while True:
+					try:tmp = self.queR.get( timeout = 1 )
+					except Empty:break
+					if not tmp:break
+					else:self.queW.put( self.crypto.encrypt( tmp ) )
+
+			elif( self.type == 'D' ):
+				while True:
+					try:tmp = self.queR.get( timeout = 1 );
+					except Empty:break
+					if not tmp:break
+					else:self.queW.put( self.crypto.decrypt( tmp ) )
+
+		except KeyboardInterrupt:    # Ctrl + C
+			print( 'Not finished: crypt!' )
+		self._running = True
+		return
 
 class IRead( Thread ):
 	'''

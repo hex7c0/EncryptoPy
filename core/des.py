@@ -1,7 +1,7 @@
 '''
 des.py: implements DES - Data Encryption Standard
-from the DES project, https://github.com/sfyoung/DES
-author			S.F.Young (https://github.com/sfyoung)
+From the DES project, https://github.com/sfyoung/DES
+Author			S.F.Young (https://github.com/sfyoung)
 Tweak by		0x7c0 (http://hex7c0.tk/)
 License: Public Domain - free to do as you wish
 Created on 2013-5-28
