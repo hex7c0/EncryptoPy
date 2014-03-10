@@ -2,7 +2,18 @@
 ===========
 
 	0.1 (alpha)
-		* He was born EncryptoPy
+		* was born EncryptoPy
+		* add Aes, Base, Xor Hash, Hmac, Crc modules
 	0.2 (alpha)
-		* add Playfair and Vigenè module
+		* add Vigenère, Playfair modules
 		* remodeled in modules
+	0.3 (alpha)
+		* remodeled with process and threads (-3min with slow encryption)
+		* add Blowfish module
+	0.4 (alpha)
+		* back to work after many months
+		* pylint optimization
+		* add Des, Caesar, Morse, Leet modules
+		* remove blowfish (bugged), will be inserted at new release
+		
+		
