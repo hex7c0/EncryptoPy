@@ -1,46 +1,52 @@
 '''
-base.py: implements base encoding
-http://docs.python.org/3.3/library/base64.html
-Author			0x7c0 (http://hex7c0.tk/)
-Licensed under GPL License, Version 3.0 (http://www.gnu.org/licenses/gpl.html)
-
+Base class
 Created on 10/set/2013
-@version: 0.1
-@author: 0x7c0
+
+@link http://docs.python.org/3.3/library/base64.html
+@package EncryptoPy
+@subpackage modules
+@version 0.4
+@author 0x7c0 <0x7c0@teboss.tk>
+@copyright Copyright (c) 2013, 0x7c0
+@license http://www.gnu.org/licenses/gpl.html GPL v3 License
 '''
 
-import base64
 
-class Base( object ):
-	def __init__( self, size ):
-		'''
-		costructor
-		@param int size		type of base, [16,32,64]
-		'''
+from base64 import b16encode, b32encode, b64encode, \
+                b16decode, b32decode, b64decode
 
-		self.size = size
 
-	def encode( self, i ):
-		'''
-		encode data with select base
-		@param bin i	binary data
-		'''
+class Base(object):
+    '''
+    base
 
-		if( self.size == 16 ):
-			return base64.b16encode( i )
-		elif( self.size == 32 ):
-			return base64.b32encode( i )
-		else:
-			return base64.b64encode( i )
-	def decode( self, i ):
-		'''
-		decode data with select base
-		@param bin i	binary data
-		'''
+    @param integer size:    type of module [16,32,64]
+    @param char typ:    type of code [E,D]
+    @return object
+    '''
 
-		if( self.size == 16 ):
-			return base64.b16decode( i )
-		elif( self.size == 32 ):
-			return base64.b32decode( i )
-		else:
-			return base64.b64decode( i )
+    def __init__(self, size, typ):
+        if(typ == 'E'):
+            if(size == 16):
+                self.code = b16encode
+            elif(size == 32):
+                self.code = b32encode
+            else:
+                self.code = b64encode
+        else:
+            if(size == 16):
+                self.code = b16decode
+            elif(size == 32):
+                self.code = b32decode
+            else:
+                self.code = b64decode
+
+    def coding(self, data):
+        '''
+        encode/decode data with base
+
+        @param byte data    binary data
+        @return byte
+        '''
+
+        return self.code(data)

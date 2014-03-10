@@ -1,36 +1,62 @@
 '''
-crc.py: implements Checksum methods
-http://docs.python.org/3.3/library/zlib.html
-Author			0x7c0 (http://hex7c0.tk/)
-Licensed under GPL License, Version 3.0 (http://www.gnu.org/licenses/gpl.html)
-
+Crc class
 Created on 17/set/2013
-@version: 0.1
-@author: 0x7c0
+
+@link http://docs.python.org/3.3/library/zlib.html
+@package EncryptoPy
+@subpackage modules
+@version 0.4
+@author 0x7c0 <0x7c0@teboss.tk>
+@copyright Copyright (c) 2013, 0x7c0
+@license http://www.gnu.org/licenses/gpl.html GPL v3 License
 '''
 
-import zlib
 
-class Crc( object ):
-	def __init__( self, size ):
-		'''
-		costructor
-		@param int size		type of hash, [31,32]
-		'''
+from zlib import adler32, crc32
 
-		self.size = size
-		self.hash = 0
 
-	def out( self ):
-		''' simple output print '''
+class Crc(object):
+    '''
+    hmac
 
-		print( 'Checksum: %s' % ( self.hash, ) )
-	def update( self, data ):
-		'''
-		build correct hash algorithm
-		@param byte data	data of file
-		'''
+    @param integer size:        type of hash [31, 32]
+    @return object
+    '''
 
-		if( self.size == 31 ): self.hash += zlib.adler32( data )    # adler
-		elif( self.size == 32 ): self.hash += zlib.crc32( data )    # crc
-		return
+    def __init__(self, size):
+        self.hash = 0
+        if(size == 31):    # adler
+            self.update = self.update_adler
+        else:    # crc
+            self.update = self.update_crc
+
+    def update_adler(self, data):
+        '''
+        update hash
+
+        @param byte data    data of file
+        @return void
+        '''
+
+        self.hash += adler32(data)
+        return
+
+    def update_crc(self, data):
+        '''
+        update hash
+
+        @param byte data    data of file
+        @return void
+        '''
+
+        self.hash += crc32(data)
+        return
+
+    def hexdigest(self):
+        '''
+        return formatted string
+
+        @return string
+        '''
+
+        return str(self.hash)

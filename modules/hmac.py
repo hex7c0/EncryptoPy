@@ -1,26 +1,27 @@
 '''
-hmac.py: implements protected Hashing method
-http://docs.python.org/3.3/library/hmac.html
-Author			0x7c0 (http://hex7c0.tk/)
-Licensed under GPL License, Version 3.0 (http://www.gnu.org/licenses/gpl.html)
-
+Hmac class
 Created on 17/set/2013
-@version: 0.1
-@author: 0x7c0
+
+@link http://docs.python.org/3.3/library/hmac.html
+@package EncryptoPy
+@subpackage modules
+@version 0.4
+@author 0x7c0 <0x7c0@teboss.tk>
+@copyright Copyright (c) 2013, 0x7c0
+@license http://www.gnu.org/licenses/gpl.html GPL v3 License
 '''
 
-import hmac
 
-class Hmac( object ):
-	def __init__( self, psw ):
-		'''
-		costructor
-		@param string psw	user password
-		'''
+from hmac import new
 
-		self.hash = hmac.new( str.encode( psw ) )
 
-	def out( self ):
-		''' simple output print '''
+class Hmac(object):
+    '''
+    hash
 
-		print( 'Hash: %s' % ( self.hash.hexdigest(), ) )
+    @param string psw:    password
+    @return object
+    '''
+
+    def __init__(self, psw):
+        self.hash = new(psw.encode())

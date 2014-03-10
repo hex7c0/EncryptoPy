@@ -1,418 +1,343 @@
 '''
 Thread classes
 Created on 10/set/2013
-Licensed under GPL License, Version 3.0 (http://www.gnu.org/licenses/gpl.html)
 
-@version: 0.3
-@author: 0x7c0
+@package EncryptoPy
+@subpackage core
+@version 0.4
+@author 0x7c0 <0x7c0@teboss.tk>
+@copyright Copyright (c) 2013, 0x7c0
+@license http://www.gnu.org/licenses/gpl.html GPL v3 License
 '''
 
-BUFFER = 4096
-from queue import Empty
-from threading import Thread
 
-class AesCrypto( Thread ):
-	'''
-	wrapper class for encoding with aes encryption
-	@param string psw	user password
-	@param int size		type of aes, [16,24,32]
-	@param char typ		type of encryption module
-	@param queue r		queue for read data
-	@param queue q		queue for write data
-	'''
+try:
+    from threading import Thread
+    from gzip import GzipFile
+    from shutil import copyfileobj
+    from tempfile import NamedTemporaryFile
+    # personal
+    from core.utility import u_file_del
+except ImportError as error:
+    print('In %s cannot load required libraries: %s!' \
+        % (__name__, error))
+    quit()
 
-	def __init__( self, psw, size, typ, r, w ):
-		from modules.aes import AESModeOfOperation,makeHex,makeIv
-		Thread.__init__( self, name = 'T_Crypto', args = ( r, w, ) )
-		self.crypto = AESModeOfOperation()
-		self.queR = r
-		self.queW = w
-		self.size = size
-		self.type = typ
-		self.mode = 1
-		self.hex = makeHex(psw,size)
-		self.iv = makeIv( size )
-	def terminate( self ):
-		self._running = False
-	def run( self ):
-		''' start thread '''
-		try:
-			if( self.type == 'E' ):
-				self.queW.put( self.iv )
-				while True:
-					try:tmp = self.queR.get( timeout = 1 )
-					except Empty:break
-					if not tmp:break
-					else:ciph = self.crypto.encrypt( tmp, self.mode, self.hex, self.size, self.iv );self.queW.put( ciph[2] );
-			elif( self.type == 'D' ):
-				try:IV = self.queR.get( timeout = 1 )    # iv
-				except Empty:return
-				while True:
-					try:tmp = self.queR.get( timeout = 1 );
-					except Empty:break
-					if not tmp:break
-					else:self.queW.put( self.crypto.decrypt( tmp, None, self.mode, self.hex, self.size, IV ) )
-		except KeyboardInterrupt:    # Ctrl + C
-			print( 'Not finished: crypt!' )
-		self._running = True
-		return
-class DesCrypto( Thread ):
-	'''
-	wrapper class for encoding with des encryption
-	@param string psw	user password
-	@param char typ		type of encryption module
-	@param queue r		queue for read data
-	@param queue q		queue for write data
-	'''
 
-	def __init__( self, psw, typ, r, w ):
-		from modules.des import Des, makeHex
-		Thread.__init__( self, name = 'T_Crypto', args = ( r, w, ) )
-		self.crypto = Des( '', makeHex( psw ), typ )
-		self.queR = r
-		self.queW = w
-		self.type = typ
-	def terminate( self ):
-		self._running = False
-	def run( self ):
-		''' start thread '''
-		try:
-			if( self.type == 'E' ):
-				while True:
-					try:tmp = self.queR.get( timeout = 1 )
-					except Empty:break
-					if not tmp:break
-					else:self.crypto._message = tmp;self.queW.put( self.crypto.crypt() );
-			elif( self.type == 'D' ):
-				while True:
-					try:tmp = self.queR.get( timeout = 1 );
-					except Empty:break
-					if not tmp:break
-					else:self.crypto._message = tmp;self.queW.put( self.crypto.crypt() )
-		except KeyboardInterrupt:    # Ctrl + C
-			print( 'Not finished: crypt!' )
-		self._running = True
-		return
-class BasCrypto( Thread ):
-	'''
-	wrapper class for encoding with base
-	@param int size		type of base, [16,32,64]
-	@param char typ		type of encryption module
-	@param queue r		queue for read data
-	@param queue q		queue for write data
-	'''
+BUFFER = 131072    # 128kb
+BUFFER_PICK = 6
+BUFFER_HEAD = 64
+FIRST = 0
 
-	def __init__( self, size, typ, r, w ):
-		from modules.base import Base
-		Thread.__init__( self, name = 'T_Crypto', args = ( r, w, ) )
-		self.crypto = Base( size )
-		self.queR = r
-		self.queW = w
-		self.type = typ
-	def terminate( self ):
-		self._running = False
-	def run( self ):
-		''' start thread '''
-		try:
-			if( self.type == 'E' ):
-				while True:
-					try:tmp = self.queR.get( timeout = 1 )
-					except Empty:break
-					if not tmp:break
-					else:
-						try:self.queW.put( self.crypto.encode( tmp ) );
-						except TypeError:print( 'File not correct!' );return
-			elif( self.type == 'D' ):
-				while True:
-					try:tmp = self.queR.get( timeout = 1 );
-					except Empty:break
-					if not tmp:break
-					else:
-						try:self.queW.put( self.crypto.decode( tmp ) )
-						except TypeError:print( 'File not correct!' );return
-		except KeyboardInterrupt:    # Ctrl + C
-			print( 'Not finished: crypt!' )
-		self._running = True
-		return
-class XorCrypto( Thread ):
-	'''
-	wrapper class for encoding with xor encryption
-	@param string psw	user password
-	@param char typ		type of encryption module
-	@param queue r		queue for read data
-	@param queue q		queue for write data
-	'''
-	
-	def __init__( self, psw, typ, r, w ):
-		from modules.xor import Xor
-		Thread.__init__( self, name = 'T_Crypto', args = ( r, w, ) )
-		self.crypto = Xor( psw )
-		self.queR = r
-		self.queW = w
-		self.type = typ
-	def terminate( self ):
-		self._running = False
-	def run( self ):
-		''' start thread '''
-		try:
-			if( self.type == 'E' ):
-				while True:
-					try:tmp = self.queR.get( timeout = 1 )
-					except Empty:break
-					if not tmp:break
-					else:self.queW.put( self.crypto.coding( tmp ) )
-			elif( self.type == 'D' ):
-				while True:
-					try:tmp = self.queR.get( timeout = 1 );
-					except Empty:break
-					if not tmp:break
-					else:self.queW.put( self.crypto.coding( tmp ) )
-		except KeyboardInterrupt:    # Ctrl + C
-			print( 'Not finished: crypt!' )
-		self._running = True
-		return
-class HasCrypto( Thread ):
-	'''
-	wrapper class for encoding with hash
-	@param int size		type of hash, [1,5,160,224,256,384,512]
-	@param queue r		queue for read data
-	@param queue q		queue for write data
-	'''
 
-	def __init__( self, size, r, w ):
-		from modules.hash import Hash
-		Thread.__init__( self, name = 'T_Crypto', args = ( r, w, ) )
-		self.crypto = Hash( size )
-		self.queR = r
-		self.queW = w
-	def terminate( self ):
-		self._running = False
-	def run( self ):
-		''' start thread '''
-		try:
-			while True:
-				try:tmp = self.queR.get( timeout = 1 );
-				except Empty:break
-				if not tmp:break
-				else:self.crypto.hash.update( tmp )
-			self.queW.put( self.crypto.hash.digest() )
-			self.crypto.out()
-			return
-		except KeyboardInterrupt:    # Ctrl + C
-			print( 'Not finished: crypt!' )
-		self._running = True
-		return
-class MacCrypto( Thread ):
-	'''
-	wrapper class for encoding with hmac
-	@param string psw	user password
-	@param queue r		queue for read data
-	@param queue q		queue for write data
-	'''
+class IRead(Thread):
+    '''
+    class for read normal/encrypted file
 
-	def __init__( self, psw, r, w ):
-		from modules.hmac import Hmac
-		Thread.__init__( self, name = 'T_Crypto', args = ( r, w, ) )
-		self.crypto = Hmac( psw )
-		self.queR = r
-		self.queW = w
-	def terminate( self ):
-		self._running = False
-	def run( self ):
-		''' start thread '''
-		try:
-			while True:
-				try:tmp = self.queR.get( timeout = 1 );
-				except Empty:break
-				if not tmp:break
-				else:self.crypto.hash.update( tmp )
-			self.queW.put( self.crypto.hash.digest() )
-			self.crypto.out()
-			return
-		except KeyboardInterrupt:    # Ctrl + C
-			print( 'Not finished: crypt!' )
-		self._running = True
-		return
-class CrcCrypto( Thread ):
-	'''
-	wrapper class for encoding with crc
-	@param int size		type of hash, [31,32]
-	@param queue r		queue for read data
-	@param queue q		queue for write data
-	'''
+    # inside info
+    string psw    user password
+    int size    for encryption module
+    char action    'E' for encryption or 'D' for decryption
+    char typ    type of encryption module
+    integer proc    number of process for crypto
+    string ash    header hash
 
-	def __init__( self, size, r, w ):
-		from modules.crc import Crc
-		Thread.__init__( self, name = 'T_Crypto', args = ( r, w, ) )
-		self.crypto = Crc( size )
-		self.queR = r
-		self.queW = w
-	def terminate( self ):
-		self._running = False
-	def run( self ):
-		''' start thread '''
-		try:
-			while True:
-				try:tmp = self.queR.get( timeout = 1 );
-				except Empty:break
-				if not tmp:break
-				else:self.crypto.update( tmp )
-			self.queW.put( self.crypto.hash )
-			self.crypto.out()
-			return
-		except KeyboardInterrupt:    # Ctrl + C
-			print( 'Not finished: crypt!' )
-		self._running = True
-		return
-class VigCrypto( Thread ):
-	'''
-	wrapper class for encoding with Vigenère
-	@param char typ		type of encryption module
-	@param string psw	user password
-	@param queue r		queue for read data
-	@param queue q		queue for write data
-	'''
+    @param string file:    root of read file
+    @param queue que:    queue for read data
+    @param queue thread:    queue between thread
+    @param tuple info:    see above
+    @return object
+    '''
 
-	def __init__( self, typ, psw, r, w ):
-		from modules.vigenere import Vigenere
-		Thread.__init__( self, name = 'T_Crypto', args = ( r, w, ) )
-		self.crypto = Vigenere( psw )
-		self.type = typ
-		self.queR = r
-		self.queW = w
-	def terminate( self ):
-		self._running = False
-	def run( self ):
-		''' start thread '''
-		try:
-			if( self.type == 'E' ):
-				while True:
-					try:tmp = self.queR.get( timeout = 1 )
-					except Empty:break
-					if not tmp:break
-					else:self.queW.put( self.crypto.encrypt( tmp ) );
-			elif( self.type == 'D' ):
-				while True:
-					try:tmp = self.queR.get( timeout = 1 );
-					except Empty:break
-					if not tmp:break
-					else:self.queW.put( self.crypto.decrypt( tmp ) )
-		except KeyboardInterrupt:    # Ctrl + C
-			print( 'Not finished: crypt!' )
-		self._running = True
-		return
-class PlaCrypto( Thread ):
-	'''
-	wrapper class for encoding with Vigenère
-	@param char typ		type of encryption module
-	@param string psw	user password
-	@param queue r		queue for read data
-	@param queue q		queue for write data
-	'''
+    def __init__(self, file, que, thread, info):
+        Thread.__init__(self, name='%s_%s' % (__name__, file))
+        self.__thread = thread
+        self.__info = info
+        self._error = True
+        self.file = file
+        self.que = que
 
-	def __init__( self, typ, psw, r, w ):
-		from modules.playfair import Playfair
-		Thread.__init__( self, name = 'T_Crypto', args = ( r, w, ) )
-		self.crypto = Playfair( psw )
-		self.type = typ
-		self.queR = r
-		self.queW = w
-	def terminate( self ):
-		self._running = False
-	def run( self ):
-		''' start thread '''
-		try:
-			if( self.type == 'E' ):
-				while True:
-					try:tmp = self.queR.get( timeout = 1 )
-					except Empty:break
-					if not tmp:break
-					else:self.queW.put( self.crypto.encrypt( tmp ) )
-			elif( self.type == 'D' ):
-				while True:
-					try:tmp = self.queR.get( timeout = 1 );
-					except Empty:break
-					if not tmp:break
-					else:self.queW.put( self.crypto.decrypt( tmp ) )
-		except KeyboardInterrupt:    # Ctrl + C
-			print( 'Not finished: crypt!' )
-		self._running = True
-		return
+    def run(self):
+        '''
+        starting thread
 
-class IRead( Thread ):
-	'''
-	class for read normal/encrypted file
-	@param string file	root of write file
-	@param queue r		queue for read data
-	@param char typ		type of encryption module
-	'''
+        @return void
+        '''
 
-	def __init__( self, file, r, typ ):
-		Thread.__init__( self, name = 'T_R_%s' % ( file, ), args = ( r, ) )
-		self.file = file
-		self.que = r
-		self.type = typ
-	def terminate( self ):
-		self._running = False
-	def run( self ):
-		try:
-			with open( self.file, 'r+b' ) as File:
-				if( self.type == 'E' ):
-					while True:
-						tmp = File.read( BUFFER )
-						if not tmp: break
-						else: self.que.put( tmp );
-				elif( self.type == 'D' ):
-					from pickle import load, UnpicklingError
-					try:self.que.put( load( File ) )    # iv
-					except UnpicklingError: print( 'File not correct!' );return
-					while True:
-						try:
-							tmp = load( File )
-							if not tmp: break
-							self.que.put( tmp )
-						except EOFError: break
-		except KeyboardInterrupt:    # Ctrl + C
-			print( 'Not finished: read!' )
-		self._running = True
-		return
-class IWrit( Thread ):
-	'''
-	class for write encrypted/normal file
-	@param string file	root of write file
-	@param queue q		queue for write data
-	@param char typ		type of encryption module
-	'''
+        try:
+            with open(self.file, 'rb') as file:
+                boool = (len(self.__info[2]) == 2 and self.__info[2][0] == 'E')
+                if(boool):    # compress
+                    gzip = NamedTemporaryFile(delete=False)
+                    with GzipFile(gzip.name, 'wb') as comp:
+                        copyfileobj(file, comp)
+                    file = gzip    # override
+                # not_dots fx
+                putt = self.que.put_nowait
+                count = FIRST
+                fread = file.read
 
-	def __init__( self, file, q, typ ):
-		Thread.__init__( self, name = 'T_W_%s' % ( file, ), args = ( q, ) )
-		self.file = file
-		self.que = q
-		self.type = typ
-	def terminate( self ):
-		self._running = False
-	def run( self ):
-		try:
-			tmp = self.que.get( timeout = 4 )
-			with open( self.file, 'w+b' ) as File:
-				if( self.type == 'E' ):
-					from pickle import dump
-					dump( tmp, File );
-					while True:
-						try:tmp = self.que.get( timeout = 2 )
-						except Empty:break
-						if not tmp:break
-						else:dump( tmp, File );
-				elif( self.type == 'D' ):
-					File.write( tmp )
-					while True:
-						try:tmp = self.que.get( timeout = 2 )
-						except Empty:break
-						if not tmp:break
-						else:File.write( tmp )
-		except Empty:return
-		except KeyboardInterrupt:    # Ctrl + C
-			print( 'Not finished: write!' )
-		# print( 'Write done.' )
-		self._running = True
-		return
+                if(self.__info[2][0] == 'E'):    # encrypt
+                    while True:
+                        tmp = fread(BUFFER)
+                        if(not tmp):
+                            break
+                        putt((tmp, count))
+                        count += 1
+
+                else:    # decrypt
+                    try:
+                        buffer = int(fread(BUFFER_PICK))    # pickle buffer
+                        header = fread(BUFFER_HEAD).decode()    # header
+                        if(header == self.__info[5][0:BUFFER_HEAD]):
+                            while True:
+                                tmp = fread(buffer)
+                                if(not tmp):
+                                    break
+                                putt((tmp, count))
+                                count += 1
+                    except ValueError:
+                        pass
+
+            for i in range(self.__info[4]):    # end of queue
+                putt((False, i))
+            if(boool):    # remove compress
+                gzip.close()
+                u_file_del(gzip.name)
+
+            self._error = False
+        except KeyboardInterrupt:    # Ctrl + C
+            pass
+
+        if(self._error):    # error
+            self.__thread.put_nowait(0)
+        else:    # for write
+            self.__thread.put_nowait(count)
+
+        return
+
+
+class IWrit(Thread):
+    '''
+    class for write encrypted/normal file
+
+    # inside info
+    string psw    user password
+    int size    for encryption module
+    char action    'E' for encryption or 'D' for decryption
+    char typ    type of encryption module
+    integer proc    number of process for crypto
+    string ash    header hash
+
+    @param string file:    root of write file
+    @param queue que:    queue for write data
+    @param queue thread:    queue between thread
+    @param tuple info:    see above
+    @param bool ash    flag if is a hash function
+    @return object
+    '''
+
+    def __init__(self, file, que, thread, info, ash):
+        Thread.__init__(self, name='%s_%s' % (__name__, file))
+        self.__thread = thread
+        self.__info = info
+        self._error = True
+        self.file = file
+        self.que = que
+
+        self._ash = ash
+        self._fwrite = None
+        self.buffer = {}    # dict
+
+    def run(self):
+        '''
+        starting thread
+
+        @return void
+        '''
+
+        try:
+            cyc = self.__thread.get()
+            if(self._ash):    # header part
+                pass
+            elif(cyc > 0):
+                with open(self.file, 'wb') as file:
+                    boool = (len(self.__info[2]) == 2 and \
+                            self.__info[2][0] == 'D')
+                    if(boool):    # decompress
+                        gzip = NamedTemporaryFile(delete=False)
+                        backup = file
+                        file = gzip    # override
+                    # not_dots fx
+                    gett = self.que.get
+                    count = FIRST
+                    self._fwrite = fwrite = file.write
+
+                    if(self.__info[2][0] == 'E'):    # encrypt
+                        raw, seq = gett()
+                        self.buffer[seq] = raw
+                        first = str(len(raw)).zfill(BUFFER_PICK)
+                        fwrite(first.encode())
+                        fwrite(self.__info[5][0:BUFFER_HEAD].encode())
+                        cyc -= 1
+                        del first
+
+                        while cyc > 0:
+                            raw, seq = gett()
+                            if(not raw):
+                                break
+                            elif(count == seq):
+                                fwrite(raw)
+                                count += 1
+                            else:
+                                self.buffer[seq] = raw
+                                count = self.controll(count)
+                            cyc -= 1
+
+                    else:    # decrypt
+                        while cyc > 0:
+                            raw, seq = gett()
+                            if(not raw):
+                                break
+                            elif(count == seq):
+                                fwrite(raw)
+                                count += 1
+                            else:
+                                self.buffer[seq] = raw
+                                count = self.controll(count)
+                            cyc -= 1
+
+                    self.last(count)
+                    if(boool):
+                        gzip.close()
+                        with GzipFile(gzip.name, 'rb') as comp:
+                            copyfileobj(comp, backup)
+                        u_file_del(gzip.name)
+        except KeyboardInterrupt:    # Ctrl + C
+            pass
+
+        return
+
+    def controll(self, ticket):
+        '''
+        RECURSIVE
+        try to write ticket seq to file
+        if a valid sequence
+
+        @integer ticket:    number of packet
+        @return integer
+        '''
+
+        try:
+            data = self.buffer[ticket]
+            del self.buffer[ticket]
+            self._fwrite(data)
+            ticket += 1
+            return self.controll(ticket)
+        except KeyError:
+            return ticket
+
+    def last(self, ticket):
+        '''
+        recevive last element
+        close queue and try to build file
+
+        @integer ticket:    number of packet
+        @return void
+        '''
+
+        self.que.close()
+        self.que.cancel_join_thread()
+        self.controll(ticket)
+        return
+
+
+class IMngr(Thread):
+    '''
+    manager class for build process
+
+    # inside info
+    string psw    user password
+    int size    for encryption module
+    char action    'E' for encryption or 'D' for decryption
+    char typ    type of encryption module
+    integer proc    number of process for crypto
+    string ash    header hash
+
+    # inside que
+    queue    queue for read data
+    queue    queue for write data
+
+    @param tuple info    see above
+    @param list que    see above
+    @retun object
+    '''
+
+    def __init__(self, info, que):
+        Thread.__init__(self, name=__name__)
+        self.__info = info
+        self._cry = []    # crypto
+        self.who = info[4]
+        app = self._cry.append
+        typ = info[3]
+
+        try:
+            if   (typ == 'A'):
+                from core.process import AesCrypto as Crypto
+            elif (typ == 'D'):
+                from core.process import DesCrypto as Crypto
+            elif (typ == 'B'):
+                from core.process import BasCrypto as Crypto
+            elif (typ == 'X'):
+                from core.process import XorCrypto as Crypto
+            elif (typ == 'H'):
+                from core.process import HasCrypto as Crypto
+            elif (typ == 'M'):
+                from core.process import MacCrypto as Crypto
+            elif (typ == 'C'):
+                from core.process import CrcCrypto as Crypto
+            elif (typ == 'V'):
+                from core.process import VigCrypto as Crypto
+            elif (typ == 'P'):
+                from core.process import PlaCrypto as Crypto
+            #==================================================================
+            # elif (typ == 'F'):
+            #     from core.process import BloCrypto as Crypto
+            #==================================================================
+            elif (typ == 'R'):
+                from core.process import CaeCrypto as Crypto
+            elif (typ == 'O'):
+                from core.process import MorCrypto as Crypto
+            elif (typ == 'L'):
+                from core.process import LetCrypto as Crypto
+
+            for i in range(self.who):
+                cry = Crypto(i, info, que)
+                app(cry)
+        except ImportError:
+            raise Exception
+
+    def run(self):
+        '''
+        starting thread
+
+        @return void
+        '''
+
+        who = self.who
+        cry = self._cry
+        try:
+            # start process
+            for i in range(who):
+                cry[i].start()
+            # wait for exit
+            for i in range(who):
+                cry[i].join()
+
+        except KeyboardInterrupt:    # Ctrl + C
+            for i in range(who):
+                pid = cry[i]
+                if(pid.is_alive()):
+                    pid.terminate()
+
+        return

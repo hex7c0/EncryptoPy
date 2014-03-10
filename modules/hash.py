@@ -1,32 +1,46 @@
 '''
-hash.py: implements Hashing method
-http://docs.python.org/3.3/library/hashlib.html
-Author			0x7c0 (http://hex7c0.tk/)
-Licensed under GPL License, Version 3.0 (http://www.gnu.org/licenses/gpl.html)
-
+Hash class
 Created on 17/set/2013
-@version: 0.1
-@author: 0x7c0
+
+@link http://docs.python.org/3.3/library/hashlib.html
+@package EncryptoPy
+@subpackage modules
+@version 0.4
+@author 0x7c0 <0x7c0@teboss.tk>
+@copyright Copyright (c) 2013, 0x7c0
+@license http://www.gnu.org/licenses/gpl.html GPL v3 License
 '''
 
-import hashlib
 
-class Hash( object ):
-	def __init__( self, size ):
-		'''
-		costructor
-		@param int size		type of hash, [1,5,160,224,256,384,512]
-		'''
+from hashlib import new
 
-		if( size == 1 ): self.hash = hashlib.new( 'DSA' )    # dsa
-		elif( size == 5 ): self.hash = hashlib.new( 'MD5' )    # md5
-		elif( size == 160 ): self.hash = hashlib.new( 'RIPEMD160' )    # ripemd
-		elif( size == 224 ): self.hash = hashlib.new( 'SHA224' )    # sha2
-		elif( size == 256 ): self.hash = hashlib.new( 'SHA256' )
-		elif( size == 384 ): self.hash = hashlib.new( 'SHA384' )
-		elif( size == 512 ): self.hash = hashlib.new( 'SHA512' )
 
-	def out( self ):
-		''' simple output print '''
+class Hash(object):
+    '''
+    hmac
 
-		print( 'Hash: %s' % ( self.hash.hexdigest(), ) )
+    @param integer size:        type of hash [0,1,3,4,5,160,224,256,384,512]
+    @return object
+    '''
+
+    def __init__(self, size):
+        if(size == 0):    # sha0
+            self.hash = new('SHA')
+        elif(size == 1):    # dsa
+            self.hash = new('SHA1')
+        elif(size == 3):    # dsa
+            self.hash = new('DSA')
+        elif(size == 4):
+            self.hash = new('MD4')
+        elif(size == 160):    # ripemd
+            self.hash = new('RIPEMD160')
+        elif(size == 224):    # sha2
+            self.hash = new('SHA224')
+        elif(size == 256):
+            self.hash = new('SHA256')
+        elif(size == 384):
+            self.hash = new('SHA384')
+        elif(size == 512):
+            self.hash = new('SHA512')
+        else:    # md5
+            self.hash = new('MD5')

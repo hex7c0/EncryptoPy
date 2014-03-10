@@ -1,105 +1,142 @@
 '''
 Common functions
 Created on 10/set/2013
-Licensed under GPL License, Version 3.0 (http://www.gnu.org/licenses/gpl.html)
 
-@version: 0.1
-@author: 0x7c0
+@package EncryptoPy
+@subpackage core
+@version 0.4
+@author 0x7c0 <0x7c0@teboss.tk>
+@copyright Copyright (c) 2013, 0x7c0
+@license http://www.gnu.org/licenses/gpl.html GPL v3 License
 '''
 
-def u_FileExists( root ):
-	'''
-	check exist file
-	@param string root	root of file
-	'''
 
-	from os.path import exists, isfile
-	return exists( root ) and isfile( root )
-def u_FilePurge( who ):
-	'''
-	purge file link
-	@param string who	root of file
-	'''
+from re import match
+from getpass import getpass
+from os import path, remove
+from hashlib import md5, sha512
+from time import time, gmtime, strftime
 
-	from os import unlink
-	from os.path import exists
-	if ( exists( who ) ):
-		unlink( who )
-	return
-def u_UtCrypto( psw ):
-	'''
-	encode string with hash
-	@param string psw	password
-	'''
 
-	import hashlib    # oggetto per creare sha512
-	Hash = hashlib.sha512( str.encode( psw ) )
-	# hexdigest restituisce la stringa hash
-	# str.encode converte in byte per passare base64
-	Hash.update( Hash.digest() )
-	s1 = Hash.hexdigest()
-	# 2 step, for decrease size to 64
-	Hash = hashlib.sha256( str.encode( s1 ) )
-	Hash.update( Hash.digest() )
-	return Hash.hexdigest()
-def u_DirAbs( root ):
-	'''
-	check root and return abs path
-	@param string root	root of file
-	'''
+def u_file_exists(root):
+    '''
+    check file
 
-	from os.path import isabs, join
-	from os import getcwd
-	if( isabs( root ) ):
-		return join( root )
-	else:
-		return join( getcwd(), root )
-def u_UserCheck( regex, question ):
-	'''
-	read stdin and return if match regex
-	@param string regex		regex for match
-	@param string question	print output string
-	'''
+    @param string root:        pathname
+    @return: bool
+    '''
 
-	from re import match
-	while True:
-		from getpass import getpass
-		temp = getpass( question )
-		if( match( regex, temp ) ):
-			return u_UtCrypto( temp )
-		else:
-			print( 'Provide a correct alfanum password.' )
-def u_UserInput( question ):
-	'''
-	question about action
-	@param string question	print output string
-	'''
+    return path.exists(root) and path.isfile(root)
 
-	while True:
-		action = input( question )
-		if( action.upper() == 'Y' ):
-			return True
-		elif( action.upper() == 'N' ):
-			return False
-def u_UtCrono( start, Print = True ):    # Crono old
-	'''
-	return completion time
-	if not 'print' return time without formatting
-	@param int start	initial time
-	@param bool Print	boolean for formatting
-	'''
 
-	from time import time, gmtime, strftime
-	# prende in tempo da Unix Time
-	if( Print ):
-		end = time() - start
-		if( end >= 2 ): end -= 2    # queue timeout
-		elif( end > 0 and start < 2 ): end -= 1    # queue timeout
-		if ( end < 60 ):    # sec
-			return strftime( '%S sec', gmtime( end ) )
-		elif ( end < 3600 ):    # min
-			return strftime( '%M:%S min', gmtime( end ) )
-		else:    # hr
-			return strftime( '%H:%M:%S hr', gmtime( end ) )
-	else:
-		return int( strftime( '%S', gmtime( start ) ) )
+def u_file_del(root):
+    '''
+    rm file
+
+    @param string root:        pathname
+    @return: bool
+    '''
+
+    if (u_file_exists(root)):
+        remove(root)
+    return True
+
+
+def u_file_size(root):
+    '''
+    return file size
+
+    @param string root    root of file
+    '''
+
+    if (u_file_exists(root)):
+        return path.getsize(root)
+    return
+
+
+def u_ut_crono(start, pprint=True):
+    '''
+    given the initial unix time
+    return time spent
+
+    @param time start:        stating time
+    @param bool pprint:        if print to output
+    @return: string
+    '''
+
+    if(pprint):
+        end = time() - start
+        microsecond = int((end - int(end)) * 1000)
+        if (end < 60):    # sec
+            return '%s sec and %s ms' % (strftime('%S', \
+                                             gmtime(end)), microsecond)
+        elif (end < 3600):    # min
+            return '%s min and %s ms' % (strftime('%M,%S', \
+                                             gmtime(end)), microsecond)
+        else:    # hr
+            return '%s hr and %s ms' % (strftime('%H.%M,%S', \
+                                             gmtime(end)), microsecond)
+    else:
+        return int(strftime('%S', gmtime(start)))
+
+
+def u_ut_crypto(psw):
+    '''
+    encode string with hash
+
+    @param string psw    password
+    @return string
+    '''
+
+    ash = md5(psw.encode())
+    ash = sha512(ash.digest())
+    return ash.hexdigest()
+
+
+def u_dir_abs(root):
+    '''
+    check if path is absolute
+    otherwise return abs path
+
+    @param string root:        pathname
+    @return: string
+    '''
+
+    if(path.isabs(root)):
+        return root
+    else:
+        return path.abspath(root)
+
+
+def u_user_check(regex, question):
+    '''
+    read stdin and return if match regex
+
+    @param string regex:        regolar expression
+    @param string question:        output question
+    @param bool password:        enable getpass module
+    @return: string
+    '''
+
+    while True:
+        temp = getpass(question)
+        if(match(regex, temp)):
+            return u_ut_crypto(temp)
+        print('Provide a correct alfanum password.')
+
+
+def u_user_input(question):
+    '''
+    question about action
+    yes or no question
+
+    @param string question:        output question
+    @return: bool
+    '''
+
+    while True:
+        action = input(question)
+        if(action.upper() == 'Y'):
+            return True
+        elif(action.upper() == 'N'):
+            return False
