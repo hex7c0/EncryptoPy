@@ -12,10 +12,26 @@ Created on 10/set/2013
 
 
 from re import match
+from os import urandom
 from getpass import getpass
 from os import path, remove
 from hashlib import md5, sha512
 from time import time, gmtime, strftime
+
+
+def u_dir_abs(root):
+    '''
+    check if path is absolute
+    otherwise return abs path
+
+    @param string root:        pathname
+    @return: string
+    '''
+
+    if(path.isabs(root)):
+        return root
+    else:
+        return path.abspath(root)
 
 
 def u_file_exists(root):
@@ -93,19 +109,37 @@ def u_ut_crypto(psw):
     return ash.hexdigest()
 
 
-def u_dir_abs(root):
+def u_ut_iv(size, tty='L'):
     '''
-    check if path is absolute
-    otherwise return abs path
+    make random iv for aes block
 
-    @param string root:        pathname
-    @return: string
+    @param integer size:        type of aes [16,24,32]
+    @param char tty:    type of return
+    @return list
     '''
 
-    if(path.isabs(root)):
-        return root
-    else:
-        return path.abspath(root)
+    if(tty == 'L'):
+        ivv = []
+        app = ivv.append
+
+        for i in range(0, size):
+            try:
+                app(int.from_bytes(urandom(1), 'little'))
+            except IndexError:
+                app(i)
+    elif(tty == 'S'):
+        LIMIT = 8
+        ivv = ''
+
+        for i in range(0, size):
+            try:
+                ivv = '%s%s' % (ivv, int.from_bytes(urandom(1), 'little'))
+            except IndexError:
+                ivv = '%s%s' % (ivv, i)
+        if(len(ivv) > LIMIT):
+            ivv = ivv[0:LIMIT]
+
+    return ivv
 
 
 def u_user_check(regex, question):

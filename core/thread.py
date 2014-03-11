@@ -26,7 +26,7 @@ except ImportError as error:
 
 BUFFER = 131072    # 128kb
 BUFFER_PICK = 6
-BUFFER_HEAD = 64
+BUFFER_HEAD = 128 - BUFFER_PICK
 FIRST = 0
 
 
@@ -304,12 +304,14 @@ class IMngr(Thread):
             # elif (typ == 'F'):
             #     from core.process import BloCrypto as Crypto
             #==================================================================
-            elif (typ == 'R'):
+            elif (typ == 'E'):
                 from core.process import CaeCrypto as Crypto
             elif (typ == 'O'):
                 from core.process import MorCrypto as Crypto
             elif (typ == 'L'):
                 from core.process import LetCrypto as Crypto
+            elif (typ == 'R'):
+                from core.process import RccCrypto as Crypto
 
             for i in range(self.who):
                 cry = Crypto(i, info, que)

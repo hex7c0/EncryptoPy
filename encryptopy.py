@@ -40,7 +40,7 @@ MODULES = [
             'aes', 'des', 'base', 'xor',
             'hash', 'hmac', 'crc', 'vige',
             'play', 'blow', 'caes', 'morse',
-            'leet',
+            'leet', 'rc',
             ]
 SIZE = [
             0, 1, 3, 4, 5,
@@ -341,7 +341,7 @@ if __name__ == '__main__':
         #======================================================================
         elif(TYPE == 'caes'):
             FLAG = False
-            TYP = 'R'
+            TYP = 'E'
             if(SIZE == 13):    # rot13
                 TYPE = 'rot13'
             if(SIZE == -1):    # atbash
@@ -357,6 +357,13 @@ if __name__ == '__main__':
             QUESTION = 'encrypt'
             TYP = 'L'
             TYPE = 'l33t'
+        elif(TYPE == 'rc'):
+            TYP = 'R'
+            if(SIZE == 2):    # rc2
+                TYPE = 'rc2'
+            else:    # rc4
+                SIZE = 4
+                TYPE = 'rc4'
 
         # question problem
         if(ASH):

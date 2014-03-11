@@ -14,6 +14,7 @@ Created on 20/set/2013
 from queue import Empty
 from multiprocessing import Process
 from pickle import loads, dumps
+from core.utility import u_ut_iv
 
 
 TIMEOUT = 1
@@ -44,14 +45,13 @@ class AesCrypto(Process):
 
     def __init__(self, who, info, que):
         Process.__init__(self)
-        from modules.aes import make_iv
         self.info = info
         self.que = que
         self.boool = self.info[2][0] == 'E'
 
-        f_iv = 'iv_%s' % info[5][4:12]
+        f_iv = 'iv_%s' % info[5][4:16]
         if(who == 0 and self.boool):    # first proc
-            self.ivv = make_iv(info[1])
+            self.ivv = u_ut_iv(info[1])
             with open(f_iv, 'wb') as file:
                 file.write(dumps(self.ivv))
         else:
@@ -130,13 +130,12 @@ class DesCrypto(Process):
 
     def __init__(self, who, info, que):
         Process.__init__(self)
-        from modules.des import make_iv
         self.info = info
         self.que = que
 
-        f_iv = 'iv_%s' % info[5][4:12]
+        f_iv = 'iv_%s' % info[5][4:16]
         if(who == 0 and self.info[2][0] == 'E'):    # first proc
-            self.ivv = make_iv(info[1])
+            self.ivv = u_ut_iv(info[1], 'S')
             with open(f_iv, 'wb') as file:
                 file.write(dumps(self.ivv))
         else:
@@ -154,7 +153,7 @@ class DesCrypto(Process):
         '''
 
         try:
-            from modules.des import Des
+            from modules.des.des import Des
             gett = self.que[0].get    # read
             putt = self.que[1].put_nowait    # write
             crypto = Des(self.info[0], self.ivv, self.info[2][0], self.info[1])
@@ -165,7 +164,7 @@ class DesCrypto(Process):
                 data, seq = gett()
                 if(not data):
                     break
-                putt((code(data, padmode=2), seq))
+                putt((code(data), seq))
 
             self.que[0].cancel_join_thread()
             self.que[1].close()
@@ -883,6 +882,80 @@ class LetCrypto(Process):
             pass
         except ImportError:
             pass
+        except KeyboardInterrupt:    # Ctrl + C
+            pass
+
+        return
+
+
+class RccCrypto(Process):
+    '''
+    wrapper class for encoding with des encryption
+
+    # inside info
+    string psw    user password
+    int size    for encryption module
+    char action    'E' for encryption or 'D' for decryption
+    char typ    type of encryption module
+    integer proc    number of process for crypto
+    string ash    header hash
+
+    # inside que
+    queue    queue for read data
+    queue    queue for write data
+
+    @param integer who:    number of process
+    @param tuple info:    see above
+    @param list que:    see above
+    @return object
+    '''
+
+    def __init__(self, who, info, que):
+        Process.__init__(self)
+        self.info = info
+        self.que = que
+
+        f_iv = 'iv_%s' % info[5][4:16]
+        if(who == 0 and self.info[2][0] == 'E' and self.info[1] == 2):
+            self.ivv = u_ut_iv(128)
+            with open(f_iv, 'wb') as file:
+                file.write(dumps(self.ivv))
+        else:
+            try:
+                with open(f_iv, 'rb') as file:
+                    self.ivv = loads(file.read())
+            except FileNotFoundError:
+                self.ivv = None
+
+    def run(self):
+        '''
+        start process
+
+        @return void
+        '''
+
+        try:
+            from modules.rc.rc import RC
+            gett = self.que[0].get    # read
+            putt = self.que[1].put_nowait    # write
+            crypto = RC(self.info[0], self.ivv, self.info[2][0], self.info[1])
+            code = crypto.coding
+
+            while True:
+                # data from read
+                data, seq = gett()
+                if(not data):
+                    break
+                putt((code(data), seq))
+
+            self.que[0].cancel_join_thread()
+            self.que[1].close()
+        except Empty:
+            pass
+        except ImportError:
+            pass
+        except AttributeError:    # no selv.if
+            self.que[1].put_nowait((False, 0))
         except KeyboardInterrupt:    # Ctrl + C
             pass
 

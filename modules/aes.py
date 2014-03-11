@@ -18,8 +18,8 @@ Ported from C by              Laurent Haan (http://www.progressive-coding.com)
 '''
 
 
-from math import ceil
 from os import urandom
+from math import ceil
 
 
 def append_pkcs7_padding(pad):
@@ -802,7 +802,7 @@ def make_hex(psw, size):
     '''
     hex user password
 
-    @param string psw:    user password
+    @param string psw:    password
     @param integer size:        type of aes [16,24,32]
     @return list
     '''
@@ -810,30 +810,10 @@ def make_hex(psw, size):
     hexx = []
     app = hexx.append
 
-    for i in range(0, size):
+    for i in range(size):
         try:
             app(int(ord(psw[i])))
         except IndexError:
             app(i)
 
     return hexx
-
-
-def make_iv(size):
-    '''
-    make random iv for aes block
-
-    @param integer size:        type of aes [16,24,32]
-    @return list
-    '''
-
-    ivv = []
-    app = ivv.append
-
-    for i in range(0, size):
-        try:
-            app(int.from_bytes(urandom(1), 'little'))
-        except IndexError:
-            app(i)
-
-    return ivv
