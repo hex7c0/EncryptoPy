@@ -1,11 +1,11 @@
 '''
 One time Pad class
-Created on 11/mar/2013
+Created on 11/mar/2014
 
 @link http://en.wikipedia.org/wiki/One-time_pad
 @package EncryptoPy
 @subpackage modules
-@version 0.4
+@version 0.5
 @author 0x7c0 <0x7c0@teboss.tk>
 @copyright Copyright (c) 2013, 0x7c0
 @license http://www.gnu.org/licenses/gpl.html GPL v3 License
@@ -25,7 +25,8 @@ class Otp(object):
     def __init__(self):
         pass
 
-    def encrypt(self, raw, ivv):
+    @staticmethod
+    def encrypt(raw, ivv):
         '''
         encrypt function
 
@@ -47,7 +48,8 @@ class Otp(object):
 
         return temp
 
-    def decrypt(self, raw, ivv):
+    @staticmethod
+    def decrypt(raw, ivv):
         '''
         decrypt function function
 

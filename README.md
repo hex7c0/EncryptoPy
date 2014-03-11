@@ -47,3 +47,4 @@ thanks a lot for python modules
 * Aes - Alex Martelli (http://www.aleax.it)
 * Des - Todd Whiteman (http://twhiteman.netfirms.com/)
 * Blowfish - Michael Gilfix (mgilfix@eecs.tufts.edu)
+* Rc2 - 0xEBFE (http://www.0xebfe.net/)

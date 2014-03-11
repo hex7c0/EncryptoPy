@@ -4,7 +4,7 @@ Created on 10/set/2013
 
 @package EncryptoPy
 @subpackage core
-@version 0.4
+@version 0.5
 @author 0x7c0 <0x7c0@teboss.tk>
 @copyright Copyright (c) 2013, 0x7c0
 @license http://www.gnu.org/licenses/gpl.html GPL v3 License
@@ -17,6 +17,9 @@ from getpass import getpass
 from os import path, remove
 from hashlib import md5, sha512
 from time import time, gmtime, strftime
+
+
+LIMIT = 8
 
 
 def u_dir_abs(root):
@@ -129,7 +132,6 @@ def u_ut_iv(size, tty='L', exc=False):
             except IndexError:
                 app(i)
     elif(tty == 'S'):
-        LIMIT = 8
         ivv = ''
 
         if(exc):

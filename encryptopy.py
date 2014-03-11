@@ -95,7 +95,7 @@ class Main(object):
         self.class_w = []    # write class
         self.class_c = []    # process class
 
-        for i in range(1, others[3]):
+        for ii in range(1, others[3]):
             t = NamedTemporaryFile(prefix=__name__, suffix='_r', delete=False)
             self._tmp_r.append(t.name)
             t = NamedTemporaryFile(prefix=__name__, suffix='_w', delete=False)
@@ -154,8 +154,8 @@ class Main(object):
         '''
 
         count = self._counter
-        ash = not self.others[2][count] # typ hash
-        self.time = time()
+        ash = not self.others[2][count]    # typ hash
+        self.__time = time()
         print('reading %s° round... ' % (count + 1), end='')
 
         # start
@@ -167,17 +167,17 @@ class Main(object):
         self.class_r[count].join()
         if(self.others[0]):
             self.__delete()
-        print('file read in %s.' % (u_ut_crono(self.time)))
-        self.__stat[0] += time() - self.time
-        self.time = time()    # reset
+        print('file read in %s.' % (u_ut_crono(self.__time)))
+        self.__stat[0] += time() - self.__time
+        self.__time = time()    # reset
 
         if(ash):
             print('working %s° round... ' % (count + 1), end='')
         self.class_c[count].join()
         self.class_w[count].join()
         if(ash):
-            print('file write in %s.' % (u_ut_crono(self.time)))
-        self.__stat[1] += time() - self.time
+            print('file write in %s.' % (u_ut_crono(self.__time)))
+        self.__stat[1] += time() - self.__time
 
         self._counter += 1
         if(self._counter < self.others[3]):
@@ -194,9 +194,9 @@ class Main(object):
         '''
 
         tot = self.others[3]
-        for i in range(0, tot - 1):    # remove temporary file
-            u_file_del(self._tmp_r[i])
-            u_file_del(self._tmp_w[i])
+        for iii in range(0, tot - 1):    # remove temporary file
+            u_file_del(self._tmp_r[iii])
+            u_file_del(self._tmp_w[iii])
 
         if(self.others[4]):    # stats
             print()
@@ -530,7 +530,8 @@ if __name__ == '__main__':
             QUESTION = '%s%s' % (QUESTION, L_TYPE[i])
 
             # all same
-            if(L_TYPE[i] in L_TYPE[0:i] or L_TYPE[i] in L_TYPE[i + 1:len(L_TYPE)]):
+            if(L_TYPE[i] in L_TYPE[0:i] or \
+               L_TYPE[i] in L_TYPE[i + 1:len(L_TYPE)]):
                 if(ACTION == 'E'):
                     sal = i
                 else:
