@@ -20,7 +20,7 @@ type of encryption/hash/checksum:
 	* morse
 	* leet
 	* rc		rc2, rc4
-	* one time pad
+	* one_time_pad
 
 future implementation:
 
