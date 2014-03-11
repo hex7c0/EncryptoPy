@@ -1,7 +1,7 @@
 # EncryptoPy
 
 
-### encrypt / decrypt your file with python3!
+### encrypt / decrypt your file with python3 (even in row)!
 
 _all modules are written in pure Python, so you don't need to compile it (or make setup)_
 
@@ -19,11 +19,12 @@ type of encryption/hash/checksum:
 	* caesar
 	* morse
 	* leet
+	* rc		rc2, rc4
+	* one time pad
 
 future implementation:
 
 	* multiple file input
-	* encryption with chipher in row
 
 ========
 

@@ -2,7 +2,7 @@
 Rc4 class
 Created on 10/mar/2014
 
-@link http://en.wikipedia.org/wiki/RC2
+@link http://en.wikipedia.org/wiki/RC4
 @package EncryptoPy
 @subpackage modules
 @version 0.4

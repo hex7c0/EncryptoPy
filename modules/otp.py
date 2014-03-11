@@ -1,8 +1,8 @@
 '''
-Vigenère class
-Created on 17/set/2013
+One time Pad class
+Created on 11/mar/2013
 
-@link http://en.wikipedia.org/wiki/Vigen%C3%A8re_cipher
+@link http://en.wikipedia.org/wiki/One-time_pad
 @package EncryptoPy
 @subpackage modules
 @version 0.4
@@ -12,36 +12,32 @@ Created on 17/set/2013
 '''
 
 
-from itertools import cycle
-
-
 LIMIT = 256
 
 
-class Vigenere(object):
+class Otp(object):
     '''
-    vigenere
+    otp
 
-    @param string psw:    password
     @return: object
     '''
 
-    def __init__(self, psw):
-        self.key = cycle(psw)
+    def __init__(self):
+        pass
 
-    def encrypt(self, raw):
+    def encrypt(self, raw, ivv):
         '''
         encrypt function
 
         @param byte raw:    read file
+        @param byte ivv:    iv
         @return: byte
         '''
 
         temp = bytearray()
         app = temp.append
 
-        for (ord_x, ord_y) in zip(raw, self.key):
-            ord_y = ord(ord_y)
+        for (ord_x, ord_y) in zip(raw, ivv):
             if(ord_y >= LIMIT):
                 ord_y = int(ord_y % LIMIT)
             try:
@@ -51,19 +47,19 @@ class Vigenere(object):
 
         return temp
 
-    def decrypt(self, raw):
+    def decrypt(self, raw, ivv):
         '''
         decrypt function function
 
         @param byte raw        read file
+        @param byte ivv:    iv
         @return: byte
         '''
 
         temp = bytearray()
         app = temp.append
 
-        for (ord_x, ord_y) in zip(raw, self.key):
-            ord_y = ord(ord_y)
+        for (ord_x, ord_y) in zip(raw, ivv):
             if(ord_y >= LIMIT):
                 ord_y = int(ord_y % LIMIT)
             try:

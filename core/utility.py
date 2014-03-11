@@ -109,12 +109,13 @@ def u_ut_crypto(psw):
     return ash.hexdigest()
 
 
-def u_ut_iv(size, tty='L'):
+def u_ut_iv(size, tty='L', exc=False):
     '''
     make random iv for aes block
 
     @param integer size:        type of aes [16,24,32]
     @param char tty:    type of return
+    @param bool exc:    flag if ignore limit of string
     @return list
     '''
 
@@ -122,7 +123,7 @@ def u_ut_iv(size, tty='L'):
         ivv = []
         app = ivv.append
 
-        for i in range(0, size):
+        for i in range(size):
             try:
                 app(int.from_bytes(urandom(1), 'little'))
             except IndexError:
@@ -131,13 +132,16 @@ def u_ut_iv(size, tty='L'):
         LIMIT = 8
         ivv = ''
 
-        for i in range(0, size):
-            try:
-                ivv = '%s%s' % (ivv, int.from_bytes(urandom(1), 'little'))
-            except IndexError:
-                ivv = '%s%s' % (ivv, i)
-        if(len(ivv) > LIMIT):
-            ivv = ivv[0:LIMIT]
+        if(exc):
+            return urandom(size)
+        else:
+            for i in range(size):
+                try:
+                    ivv = '%s%s' % (ivv, int.from_bytes(urandom(1), 'little'))
+                except IndexError:
+                    ivv = '%s%s' % (ivv, i)
+            if(len(ivv) > LIMIT):
+                ivv = ivv[0:LIMIT]
 
     return ivv
 

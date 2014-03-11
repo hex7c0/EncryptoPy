@@ -68,7 +68,7 @@ class IRead(Thread):
             with open(self.file, 'rb') as file:
                 boool = (len(self.__info[2]) == 2 and self.__info[2][0] == 'E')
                 if(boool):    # compress
-                    gzip = NamedTemporaryFile(delete=False)
+                    gzip = NamedTemporaryFile(prefix='comp_', delete=False)
                     with GzipFile(gzip.name, 'wb') as comp:
                         copyfileobj(file, comp)
                     file = gzip    # override
@@ -165,7 +165,7 @@ class IWrit(Thread):
                     boool = (len(self.__info[2]) == 2 and \
                             self.__info[2][0] == 'D')
                     if(boool):    # decompress
-                        gzip = NamedTemporaryFile(delete=False)
+                        gzip = NamedTemporaryFile(prefix='comp_', delete=False)
                         backup = file
                         file = gzip    # override
                     # not_dots fx
@@ -274,7 +274,7 @@ class IMngr(Thread):
     '''
 
     def __init__(self, info, que):
-        Thread.__init__(self, name=__name__)
+        Thread.__init__(self, name=info[5])
         self.__info = info
         self._cry = []    # crypto
         self.who = info[4]
@@ -306,12 +306,14 @@ class IMngr(Thread):
             #==================================================================
             elif (typ == 'E'):
                 from core.process import CaeCrypto as Crypto
-            elif (typ == 'O'):
+            elif (typ == 'S'):
                 from core.process import MorCrypto as Crypto
             elif (typ == 'L'):
                 from core.process import LetCrypto as Crypto
             elif (typ == 'R'):
                 from core.process import RccCrypto as Crypto
+            elif (typ == 'O'):
+                from core.process import OtpCrypto as Crypto
 
             for i in range(self.who):
                 cry = Crypto(i, info, que)

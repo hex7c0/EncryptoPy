@@ -19,6 +19,8 @@ from core.utility import u_ut_iv
 
 TIMEOUT = 1
 CBC = 1
+IV_S = 5
+IV_E = 15
 
 
 class AesCrypto(Process):
@@ -49,7 +51,7 @@ class AesCrypto(Process):
         self.que = que
         self.boool = self.info[2][0] == 'E'
 
-        f_iv = 'iv_%s' % info[5][4:16]
+        f_iv = 'iv_%s' % info[5][IV_S:IV_E]
         if(who == 0 and self.boool):    # first proc
             self.ivv = u_ut_iv(info[1])
             with open(f_iv, 'wb') as file:
@@ -133,7 +135,7 @@ class DesCrypto(Process):
         self.info = info
         self.que = que
 
-        f_iv = 'iv_%s' % info[5][4:16]
+        f_iv = 'iv_%s' % info[5][IV_S:IV_E]
         if(who == 0 and self.info[2][0] == 'E'):    # first proc
             self.ivv = u_ut_iv(info[1], 'S')
             with open(f_iv, 'wb') as file:
@@ -890,7 +892,7 @@ class LetCrypto(Process):
 
 class RccCrypto(Process):
     '''
-    wrapper class for encoding with des encryption
+    wrapper class for encoding with rc encryption
 
     # inside info
     string psw    user password
@@ -915,7 +917,7 @@ class RccCrypto(Process):
         self.info = info
         self.que = que
 
-        f_iv = 'iv_%s' % info[5][4:16]
+        f_iv = 'iv_%s' % info[5][IV_S:IV_E]
         if(who == 0 and self.info[2][0] == 'E' and self.info[1] == 2):
             self.ivv = u_ut_iv(128)
             with open(f_iv, 'wb') as file:
@@ -948,6 +950,85 @@ class RccCrypto(Process):
                     break
                 putt((code(data), seq))
 
+            self.que[0].cancel_join_thread()
+            self.que[1].close()
+        except Empty:
+            pass
+        except ImportError:
+            pass
+        except AttributeError:    # no selv.if
+            self.que[1].put_nowait((False, 0))
+        except KeyboardInterrupt:    # Ctrl + C
+            pass
+
+        return
+
+
+class OtpCrypto(Process):
+    '''
+    wrapper class for encoding with otp encryption
+
+    # inside info
+    string psw    user password
+    int size    for encryption module
+    char action    'E' for encryption or 'D' for decryption
+    char typ    type of encryption module
+    integer proc    number of process for crypto
+    string ash    header hash
+
+    # inside que
+    queue    queue for read data
+    queue    queue for write data
+
+    @param integer who:    number of process
+    @param tuple info:    see above
+    @param list que:    see above
+    @return object
+    '''
+
+    def __init__(self, who, info, que):
+        Process.__init__(self)
+        self.info = info
+        self.que = que
+
+    def run(self):
+        '''
+        start process
+
+        @return void
+        '''
+
+        try:
+            from modules.otp import Otp
+            gett = self.que[0].get    # read
+            putt = self.que[1].put_nowait    # write
+            crypto = Otp()
+            boool = self.info[2][0] == 'E'
+            f_iv = 'iv_%s' % self.info[5][IV_S:IV_E]
+
+            if(boool):
+                file = open(f_iv, 'wb')
+                std = file.write
+                code = crypto.encrypt
+            else:
+                file = open(f_iv, 'rb')
+                std = file.read
+                code = crypto.decrypt
+
+            while True:
+                # data from read
+                data, seq = gett()
+                if(not data):
+                    break
+                l_data = len(data)
+                if(boool):
+                    ivv = u_ut_iv(l_data, 'S', True)
+                    std(ivv)
+                else:
+                    ivv = std(l_data)
+                putt((code(data, ivv), seq))
+
+            file.close()
             self.que[0].cancel_join_thread()
             self.que[1].close()
         except Empty:
