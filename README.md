@@ -7,8 +7,8 @@ _all modules are written in pure Python, so you don't need to compile it (or mak
 
 type of encryption/hash/checksum:
 
-	* ae		128, 192, 256
-	* de		des, triple_des
+	* aes		128, 192, 256
+	* des		des, triple_des
 	* base		16, 32, 64
 	* xor		
 	* hash		sha0, sha1, dsa, md4, md5, ripmed160, sha224, sha256, sha384, sha512
