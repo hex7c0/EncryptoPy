@@ -41,7 +41,7 @@ MODULES = [
             'aes', 'des', 'base', 'xor',
             'hash', 'hmac', 'crc', 'vige',
             'play', 'blow', 'caes', 'morse',
-            'leet', 'rc', 'otp',
+            'leet', 'rc', 'otp', 'nihi',
             ]
 SIZE = [
             0, 1, 3, 4, 5,
@@ -502,6 +502,12 @@ if __name__ == '__main__':
                 TYPE = 'one_time_pad'
                 SIZE = 0
                 THREADS = 1
+
+            elif(TYPE == 'nihi'):
+                FLAG = True
+                TYP = 'N'
+                TYPE = 'nihilist'
+                SIZE = 0
 
             COUNTER += 1
             app1((PSW, SIZE, ACTION, TYP, THREADS, ASH))
