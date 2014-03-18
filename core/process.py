@@ -10,6 +10,24 @@ Created on 20/set/2013
 @license http://www.gnu.org/licenses/gpl.html GPL v3 License
 '''
 
+'''
+    #inside who
+    integer who    number of process
+    char typ    type of module
+
+    # inside info
+    string psw    user password
+    int size    for encryption module
+    char action    'E' for encryption or 'D' for decryption
+    char typ    type of encryption module
+    integer proc    number of process for crypto
+    string ash    header hash
+
+    # inside que
+    queue    queue for read data
+    queue    queue for write data
+'''
+
 
 from queue import Empty
 from multiprocessing import Process
@@ -27,19 +45,7 @@ class AesCrypto(Process):
     '''
     wrapper class for encoding with aes encryption
 
-    # inside info
-    string psw    user password
-    int size    for encryption module
-    char action    'E' for encryption or 'D' for decryption
-    char typ    type of encryption module
-    integer proc    number of process for crypto
-    string ash    header hash
-
-    # inside que
-    queue    queue for read data
-    queue    queue for write data
-
-    @param integer who:    number of process
+    @param tuple who:    see above
     @param tuple info:    see above
     @param list que:    see above
     @return object
@@ -49,10 +55,11 @@ class AesCrypto(Process):
         Process.__init__(self)
         self.info = info
         self.que = que
+        self.who = who
         self.boool = self.info[2][0] == 'E'
 
         f_iv = 'iv_%s' % info[5][IV_S:IV_E]
-        if(who == 0 and self.boool):    # first proc
+        if(who[0] == 0 and self.boool):    # first proc
             self.ivv = u_ut_iv(info[1])
             with open(f_iv, 'wb') as file:
                 file.write(dumps(self.ivv))
@@ -112,19 +119,7 @@ class DesCrypto(Process):
     '''
     wrapper class for encoding with des encryption
 
-    # inside info
-    string psw    user password
-    int size    for encryption module
-    char action    'E' for encryption or 'D' for decryption
-    char typ    type of encryption module
-    integer proc    number of process for crypto
-    string ash    header hash
-
-    # inside que
-    queue    queue for read data
-    queue    queue for write data
-
-    @param integer who:    number of process
+    @param tuple who:    see above
     @param tuple info:    see above
     @param list que:    see above
     @return object
@@ -134,9 +129,10 @@ class DesCrypto(Process):
         Process.__init__(self)
         self.info = info
         self.que = que
+        self.who = who
 
         f_iv = 'iv_%s' % info[5][IV_S:IV_E]
-        if(who == 0 and self.info[2][0] == 'E'):    # first proc
+        if(who[0] == 0 and self.info[2][0] == 'E'):    # first proc
             self.ivv = u_ut_iv(info[1], 'S')
             with open(f_iv, 'wb') as file:
                 file.write(dumps(self.ivv))
@@ -186,19 +182,7 @@ class BasCrypto(Process):
     '''
     wrapper class for encoding with base
 
-    # inside info
-    string psw    user password
-    int size    for encryption module
-    char action    'E' for encryption or 'D' for decryption
-    char typ    type of encryption module
-    integer proc    number of process for crypto
-    string ash    header hash
-
-    # inside que
-    queue    queue for read data
-    queue    queue for write data
-
-    @param integer who:    number of process
+    @param tuple who:    see above
     @param tuple info:    see above
     @param list que:    see above
     @return object
@@ -208,6 +192,7 @@ class BasCrypto(Process):
         Process.__init__(self)
         self.info = info
         self.que = que
+        self.who = who
 
     def run(self):
         '''
@@ -246,19 +231,7 @@ class XorCrypto(Process):
     '''
     wrapper class for encoding with xor encryption
 
-    # inside info
-    string psw    user password
-    int size    for encryption module
-    char action    'E' for encryption or 'D' for decryption
-    char typ    type of encryption module
-    integer proc    number of process for crypto
-    string ash    header hash
-
-    # inside que
-    queue    queue for read data
-    queue    queue for write data
-
-    @param integer who:    number of process
+    @param tuple who:    see above
     @param tuple info:    see above
     @param list que:    see above
     @return object
@@ -268,6 +241,7 @@ class XorCrypto(Process):
         Process.__init__(self)
         self.info = info
         self.que = que
+        self.who = who
 
     def run(self):
         '''
@@ -307,19 +281,7 @@ class HasCrypto(Process):
     '''
     wrapper class for encoding with hash
 
-    # inside info
-    string psw    user password
-    int size    for encryption module
-    char action    'E' for encryption or 'D' for decryption
-    char typ    type of encryption module
-    integer proc    number of process for crypto
-    string ash    header hash
-
-    # inside que
-    queue    queue for read data
-    queue    queue for write data
-
-    @param integer who:    number of process
+    @param tuple who:    see above
     @param tuple info:    see above
     @param list que:    see above
     @return object
@@ -329,6 +291,7 @@ class HasCrypto(Process):
         Process.__init__(self)
         self.info = info
         self.que = que
+        self.who = who
 
     def run(self):
         '''
@@ -368,19 +331,7 @@ class MacCrypto(Process):
     '''
     wrapper class for encoding with hmac
 
-    # inside info
-    string psw    user password
-    int size    for encryption module
-    char action    'E' for encryption or 'D' for decryption
-    char typ    type of encryption module
-    integer proc    number of process for crypto
-    string ash    header hash
-
-    # inside que
-    queue    queue for read data
-    queue    queue for write data
-
-    @param integer who:    number of process
+    @param tuple who:    see above
     @param tuple info:    see above
     @param list que:    see above
     @return object
@@ -390,6 +341,7 @@ class MacCrypto(Process):
         Process.__init__(self)
         self.info = info
         self.que = que
+        self.who = who
 
     def run(self):
         '''
@@ -427,19 +379,7 @@ class CrcCrypto(Process):
     '''
     wrapper class for encoding with crc
 
-    # inside info
-    string psw    user password
-    int size    for encryption module
-    char action    'E' for encryption or 'D' for decryption
-    char typ    type of encryption module
-    integer proc    number of process for crypto
-    string ash    header hash
-
-    # inside que
-    queue    queue for read data
-    queue    queue for write data
-
-    @param integer who:    number of process
+    @param tuple who:    see above
     @param tuple info:    see above
     @param list que:    see above
     @return object
@@ -449,6 +389,7 @@ class CrcCrypto(Process):
         Process.__init__(self)
         self.info = info
         self.que = que
+        self.who = who
 
     def run(self):
         '''
@@ -486,21 +427,9 @@ class CrcCrypto(Process):
 
 class VigCrypto(Process):
     '''
-    wrapper class for encoding with vigenère
+    wrapper class for encoding with vigenère/playfair/caesar/morse7autokey
 
-    # inside info
-    string psw    user password
-    int size    for encryption module
-    char action    'E' for encryption or 'D' for decryption
-    char typ    type of encryption module
-    integer proc    number of process for crypto
-    string ash    header hash
-
-    # inside que
-    queue    queue for read data
-    queue    queue for write data
-
-    @param integer who:    number of process
+    @param tuple who:    see above
     @param tuple info:    see above
     @param list que:    see above
     @return object
@@ -510,6 +439,7 @@ class VigCrypto(Process):
         Process.__init__(self)
         self.info = info
         self.que = que
+        self.who = who
 
     def run(self):
         '''
@@ -519,136 +449,23 @@ class VigCrypto(Process):
         '''
 
         try:
-            from modules.vigenere import Vigenere
+            if(self.who[1] == 'V'):
+                from modules.vigenere import Vigenere
+                crypto = Vigenere(self.info[0])
+            elif(self.who[1] == 'P'):
+                from modules.playfair import Playfair
+                crypto = Playfair(self.info[0])
+            elif(self.who[1] == 'E'):
+                from modules.caesar import Caesar
+                crypto = Caesar(self.info[1])
+            elif(self.who[1] == 'S'):
+                from modules.morse import Morse
+                crypto = Morse()
+            elif(self.who[1] == 'U'):
+                from modules.autokey import Autokey
+                crypto = Autokey(self.info[0])
             gett = self.que[0].get    # read
             putt = self.que[1].put_nowait    # write
-            crypto = Vigenere(self.info[0])
-            if(self.info[2][0] == 'E'):
-                code = crypto.encrypt
-            else:
-                code = crypto.decrypt
-
-            while True:
-                # data from read
-                data, seq = gett()
-                if(not data):
-                    break
-                putt((code(data), seq))
-
-            self.que[0].cancel_join_thread()
-            self.que[1].close()
-        except Empty:
-            pass
-        except ImportError:
-            pass
-        except KeyboardInterrupt:    # Ctrl + C
-            pass
-
-        return
-
-
-class PlaCrypto(Process):
-    '''
-    wrapper class for encoding with playfair
-
-    # inside info
-    string psw    user password
-    int size    for encryption module
-    char action    'E' for encryption or 'D' for decryption
-    char typ    type of encryption module
-    integer proc    number of process for crypto
-    string ash    header hash
-
-    # inside que
-    queue    queue for read data
-    queue    queue for write data
-
-    @param integer who:    number of process
-    @param tuple info:    see above
-    @param list que:    see above
-    @return object
-    '''
-
-    def __init__(self, who, info, que):
-        Process.__init__(self)
-        self.info = info
-        self.que = que
-
-    def run(self):
-        '''
-        start process
-
-        @return void
-        '''
-
-        try:
-            from modules.playfair import Playfair
-            gett = self.que[0].get    # read
-            putt = self.que[1].put_nowait    # write
-            crypto = Playfair(self.info[0])
-            if(self.info[2][0] == 'E'):
-                code = crypto.encrypt
-            else:
-                code = crypto.decrypt
-
-            while True:
-                # data from read
-                data, seq = gett()
-                if(not data):
-                    break
-                putt((code(data), seq))
-
-            self.que[0].cancel_join_thread()
-            self.que[1].close()
-        except Empty:
-            pass
-        except ImportError:
-            pass
-        except KeyboardInterrupt:    # Ctrl + C
-            pass
-
-        return
-
-
-class CaeCrypto(Process):
-    '''
-    wrapper class for encoding with caesar
-
-    # inside info
-    string psw    user password
-    int size    for encryption module
-    char action    'E' for encryption or 'D' for decryption
-    char typ    type of encryption module
-    integer proc    number of process for crypto
-    string ash    header hash
-
-    # inside que
-    queue    queue for read data
-    queue    queue for write data
-
-    @param integer who:    number of process
-    @param tuple info:    see above
-    @param list que:    see above
-    @return object
-    '''
-
-    def __init__(self, who, info, que):
-        Process.__init__(self)
-        self.info = info
-        self.que = que
-
-    def run(self):
-        '''
-        start process
-
-        @return void
-        '''
-
-        try:
-            from modules.caesar import Caesar
-            gett = self.que[0].get    # read
-            putt = self.que[1].put_nowait    # write
-            crypto = Caesar(self.info[1])
             if(self.info[2][0] == 'E'):
                 code = crypto.encrypt
             else:
@@ -690,7 +507,7 @@ class CaeCrypto(Process):
 #     queue    queue for read data
 #     queue    queue for write data
 #
-#     @param integer who:    number of process
+#     @param tuple who:    see above
 #     @param tuple info:    see above
 #     @param list que:    see above
 #     @return object
@@ -700,6 +517,7 @@ class CaeCrypto(Process):
 #         Process.__init__(self)
 #         self.info = info
 #         self.que = que
+#         self.who = who
 #
 #     def run(self):
 #         '''
@@ -767,86 +585,11 @@ class CaeCrypto(Process):
 #==============================================================================
 
 
-class MorCrypto(Process):
-    '''
-    wrapper class for encoding with morse
-
-    # inside info
-    string psw    user password
-    int size    for encryption module
-    char action    'E' for encryption or 'D' for decryption
-    char typ    type of encryption module
-    integer proc    number of process for crypto
-    string ash    header hash
-
-    # inside que
-    queue    queue for read data
-    queue    queue for write data
-
-    @param integer who:    number of process
-    @param tuple info:    see above
-    @param list que:    see above
-    @return object
-    '''
-
-    def __init__(self, who, info, que):
-        Process.__init__(self)
-        self.info = info
-        self.que = que
-
-    def run(self):
-        '''
-        start process
-
-        @return void
-        '''
-
-        try:
-            from modules.morse import Morse
-            gett = self.que[0].get    # read
-            putt = self.que[1].put_nowait    # write
-            crypto = Morse()
-            if(self.info[2][0] == 'E'):
-                code = crypto.encrypt
-            else:
-                code = crypto.decrypt
-
-            while True:
-                # data from read
-                data, seq = gett()
-                if(not data):
-                    break
-                putt((code(data), seq))
-
-            self.que[0].cancel_join_thread()
-            self.que[1].close()
-        except Empty:
-            pass
-        except ImportError:
-            pass
-        except KeyboardInterrupt:    # Ctrl + C
-            pass
-
-        return
-
-
 class LetCrypto(Process):
     '''
     wrapper class for encoding with leet
 
-    # inside info
-    string psw    user password
-    int size    for encryption module
-    char action    'E' for encryption or 'D' for decryption
-    char typ    type of encryption module
-    integer proc    number of process for crypto
-    string ash    header hash
-
-    # inside que
-    queue    queue for read data
-    queue    queue for write data
-
-    @param integer who:    number of process
+    @param tuple who:    see above
     @param tuple info:    see above
     @param list que:    see above
     @return object
@@ -856,6 +599,7 @@ class LetCrypto(Process):
         Process.__init__(self)
         self.info = info
         self.que = que
+        self.who = who
 
     def run(self):
         '''
@@ -894,19 +638,7 @@ class RccCrypto(Process):
     '''
     wrapper class for encoding with rc encryption
 
-    # inside info
-    string psw    user password
-    int size    for encryption module
-    char action    'E' for encryption or 'D' for decryption
-    char typ    type of encryption module
-    integer proc    number of process for crypto
-    string ash    header hash
-
-    # inside que
-    queue    queue for read data
-    queue    queue for write data
-
-    @param integer who:    number of process
+    @param tuple who:    see above
     @param tuple info:    see above
     @param list que:    see above
     @return object
@@ -916,6 +648,7 @@ class RccCrypto(Process):
         Process.__init__(self)
         self.info = info
         self.que = que
+        self.who = who
 
         f_iv = 'iv_%s' % info[5][IV_S:IV_E]
         if(who == 0 and self.info[2][0] == 'E' and self.info[1] == 2):
@@ -968,19 +701,7 @@ class OtpCrypto(Process):
     '''
     wrapper class for encoding with otp encryption
 
-    # inside info
-    string psw    user password
-    int size    for encryption module
-    char action    'E' for encryption or 'D' for decryption
-    char typ    type of encryption module
-    integer proc    number of process for crypto
-    string ash    header hash
-
-    # inside que
-    queue    queue for read data
-    queue    queue for write data
-
-    @param integer who:    number of process
+    @param tuple who:    see above
     @param tuple info:    see above
     @param list que:    see above
     @return object
@@ -990,6 +711,7 @@ class OtpCrypto(Process):
         Process.__init__(self)
         self.info = info
         self.que = que
+        self.who = who
 
     def run(self):
         '''
@@ -1047,19 +769,7 @@ class NihCrypto(Process):
     '''
     wrapper class for encoding with nihilist encryption
 
-    # inside info
-    string psw    user password
-    int size    for encryption module
-    char action    'E' for encryption or 'D' for decryption
-    char typ    type of encryption module
-    integer proc    number of process for crypto
-    string ash    header hash
-
-    # inside que
-    queue    queue for read data
-    queue    queue for write data
-
-    @param integer who:    number of process
+    @param tuple who:    see above
     @param tuple info:    see above
     @param list que:    see above
     @return object
@@ -1069,6 +779,7 @@ class NihCrypto(Process):
         Process.__init__(self)
         self.info = info
         self.que = que
+        self.who = who
 
         f_iv = 'iv_%s' % info[5][IV_S:IV_E]
         if(who == 0 and self.info[2][0] == 'E'):
@@ -1121,19 +832,7 @@ class VicCrypto(Process):
     '''
     wrapper class for encoding with vic encryption
 
-    # inside info
-    string psw    user password
-    int size    for encryption module
-    char action    'E' for encryption or 'D' for decryption
-    char typ    type of encryption module
-    integer proc    number of process for crypto
-    string ash    header hash
-
-    # inside que
-    queue    queue for read data
-    queue    queue for write data
-
-    @param integer who:    number of process
+    @param tuple who:    see above
     @param tuple info:    see above
     @param list que:    see above
     @return object
@@ -1143,6 +842,7 @@ class VicCrypto(Process):
         Process.__init__(self)
         self.info = info
         self.que = que
+        self.who = who
 
     def run(self):
         '''

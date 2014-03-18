@@ -42,7 +42,7 @@ MODULES = [
             'hash', 'hmac', 'crc', 'vige',
             'play', 'blow', 'caes', 'morse',
             'leet', 'rc', 'otp', 'nihi',
-            'vic',
+            'vic', 'auto',
             ]
 SIZE = [
             0, 1, 3, 4, 5,
@@ -514,6 +514,12 @@ if __name__ == '__main__':
                 FLAG = True
                 TYP = 'I'
                 TYPE = 'vic'
+                SIZE = 0
+
+            elif(TYPE == 'auto'):
+                FLAG = True
+                TYP = 'U'
+                TYPE = 'autokey'
                 SIZE = 0
 
             COUNTER += 1

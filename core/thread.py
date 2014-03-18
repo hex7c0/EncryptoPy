@@ -299,15 +299,15 @@ class IMngr(Thread):
             elif (typ == 'V'):
                 from core.process import VigCrypto as Crypto
             elif (typ == 'P'):
-                from core.process import PlaCrypto as Crypto
+                from core.process import VigCrypto as Crypto
             #==================================================================
             # elif (typ == 'F'):
             #     from core.process import BloCrypto as Crypto
             #==================================================================
             elif (typ == 'E'):
-                from core.process import CaeCrypto as Crypto
+                from core.process import VigCrypto as Crypto
             elif (typ == 'S'):
-                from core.process import MorCrypto as Crypto
+                from core.process import VigCrypto as Crypto
             elif (typ == 'L'):
                 from core.process import LetCrypto as Crypto
             elif (typ == 'R'):
@@ -318,9 +318,11 @@ class IMngr(Thread):
                 from core.process import NihCrypto as Crypto
             elif (typ == 'I'):
                 from core.process import VicCrypto as Crypto
+            elif (typ == 'U'):
+                from core.process import VigCrypto as Crypto
 
             for i in range(self.who):
-                cry = Crypto(i, info, que)
+                cry = Crypto((i, typ), info, que)
                 app(cry)
         except ImportError:
             raise Exception

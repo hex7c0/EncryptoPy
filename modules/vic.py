@@ -13,19 +13,17 @@ Created on 17/mar/2014
 
 
 MATRIX = 5
-S_MATR = ord('A')
-E_MATR = ord('z')
-S_CODE = 0
-E_CODE = 9
+S_MATR = range(ord('A'), ord('Z') + 1)
+E_MATR = range(ord('A'), ord('z') + 1)
+S_CODE = range(0, 9 + 1)
 
 
 class Vic(object):
     '''
     vic class with modification
-    like upper and lower case, special mark
+    like upper and lower case
 
     @param string psw:    password
-    @param string ivv:    iv
     @param char typ:    'E' for encryption or 'D' for decryption
     @return: object
     '''
@@ -140,6 +138,7 @@ class Vic(object):
             try:
                 res = self.CHECKERBOARD[ord_i].index(char)
                 if(ord_i == 0):
+                    # go = [0, res]
                     go = [res]
                 elif(ord_i == 1):
                     go = [2, res]
@@ -169,7 +168,25 @@ class Vic(object):
 
         while counter < len(arr):
             ii = arr[counter]
-            if(ii >= S_CODE and ii <= E_CODE):
+            if(ii in S_CODE):
+            #     if(ii == 0):
+            #         ord_x = 0
+            #     elif(ii == 2):
+            #         ord_x = 1
+            #     elif(ii == 6):
+            #         ord_x = 2
+            #     elif(ii == 4):
+            #         ord_x = 3
+            #     elif(ii == 8):
+            #         ord_x = 3
+            #     try:
+            #         counter += 1
+            #         ord_y = arr[counter]
+            #         app(self.CHECKERBOARD[ord_x][ord_y])
+            #     except IndexError:
+            #         app(ii)
+            #         counter -= 1    # restore
+            #==================================================================
                 if(ii == 2):
                     ord_x = 1
                 elif(ii == 6):
@@ -208,7 +225,7 @@ class Vic(object):
         magic = self._magic_p
 
         for i in raw:
-            if(i >= S_MATR and i <= E_MATR):
+            if(i in S_MATR or i in E_MATR):
                 plaintext = self.find(i)
                 if(plaintext is None):
                     out = magic(buffer, out)
@@ -237,7 +254,7 @@ class Vic(object):
         magic = self._magic_m
 
         for i in raw:
-            if(i >= S_MATR and i <= E_MATR):
+            if(i in S_MATR or i in E_MATR):
                 plaintext = self.find(i)
                 if(plaintext is None):
                     out = magic(buffer, out)
