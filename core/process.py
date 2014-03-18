@@ -1042,6 +1042,7 @@ class OtpCrypto(Process):
 
         return
 
+
 class NihCrypto(Process):
     '''
     wrapper class for encoding with nihilist encryption
@@ -1093,6 +1094,68 @@ class NihCrypto(Process):
             gett = self.que[0].get    # read
             putt = self.que[1].put_nowait    # write
             crypto = Nihi(self.info[0], self.ivv, self.info[2][0])
+            code = crypto.coding
+
+            while True:
+                # data from read
+                data, seq = gett()
+                if(not data):
+                    break
+                putt((code(data), seq))
+
+            self.que[0].cancel_join_thread()
+            self.que[1].close()
+        except Empty:
+            pass
+        except ImportError:
+            pass
+        except AttributeError:    # no selv.if
+            self.que[1].put_nowait((False, 0))
+        except KeyboardInterrupt:    # Ctrl + C
+            pass
+
+        return
+
+
+class VicCrypto(Process):
+    '''
+    wrapper class for encoding with vic encryption
+
+    # inside info
+    string psw    user password
+    int size    for encryption module
+    char action    'E' for encryption or 'D' for decryption
+    char typ    type of encryption module
+    integer proc    number of process for crypto
+    string ash    header hash
+
+    # inside que
+    queue    queue for read data
+    queue    queue for write data
+
+    @param integer who:    number of process
+    @param tuple info:    see above
+    @param list que:    see above
+    @return object
+    '''
+
+    def __init__(self, who, info, que):
+        Process.__init__(self)
+        self.info = info
+        self.que = que
+
+    def run(self):
+        '''
+        start process
+
+        @return void
+        '''
+
+        try:
+            from modules.vic import Vic
+            gett = self.que[0].get    # read
+            putt = self.que[1].put_nowait    # write
+            crypto = Vic(self.info[0], self.info[2][0])
             code = crypto.coding
 
             while True:

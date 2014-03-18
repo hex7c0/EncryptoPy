@@ -316,6 +316,8 @@ class IMngr(Thread):
                 from core.process import OtpCrypto as Crypto
             elif (typ == 'N'):
                 from core.process import NihCrypto as Crypto
+            elif (typ == 'I'):
+                from core.process import VicCrypto as Crypto
 
             for i in range(self.who):
                 cry = Crypto(i, info, que)

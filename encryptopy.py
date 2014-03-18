@@ -42,6 +42,7 @@ MODULES = [
             'hash', 'hmac', 'crc', 'vige',
             'play', 'blow', 'caes', 'morse',
             'leet', 'rc', 'otp', 'nihi',
+            'vic',
             ]
 SIZE = [
             0, 1, 3, 4, 5,
@@ -507,6 +508,12 @@ if __name__ == '__main__':
                 FLAG = True
                 TYP = 'N'
                 TYPE = 'nihilist'
+                SIZE = 0
+
+            elif(TYPE == 'vic'):
+                FLAG = True
+                TYP = 'I'
+                TYPE = 'vic'
                 SIZE = 0
 
             COUNTER += 1
