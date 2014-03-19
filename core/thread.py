@@ -320,6 +320,8 @@ class IMngr(Thread):
                 from core.process import VicCrypto as Crypto
             elif (typ == 'U'):
                 from core.process import VigCrypto as Crypto
+            elif (typ == '3'):
+                from core.process import HasCrypto as Crypto
 
             for i in range(self.who):
                 cry = Crypto((i, typ), info, que)

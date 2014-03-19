@@ -42,7 +42,7 @@ MODULES = [
             'hash', 'hmac', 'crc', 'vige',
             'play', 'blow', 'caes', 'morse',
             'leet', 'rc', 'otp', 'nihi',
-            'vic', 'auto',
+            'vic', 'auto', 'sha3',
             ]
 SIZE = [
             0, 1, 3, 4, 5,
@@ -521,6 +521,22 @@ if __name__ == '__main__':
                 TYP = 'U'
                 TYPE = 'autokey'
                 SIZE = 0
+
+            elif(TYPE == 'sha3'):
+                ASH = True
+                TYP = '3'
+                if(SIZE == 256):
+                    SIZE = 256
+                    TYPE = 'sha3_256'
+                elif(SIZE == 384):
+                    SIZE = 384
+                    TYPE = 'sha3_384'
+                elif(SIZE == 512):
+                    SIZE = 512
+                    TYPE = 'sha3_512'
+                else:
+                    SIZE = 224
+                    TYPE = 'sha3_224'
 
             COUNTER += 1
             app1((PSW, SIZE, ACTION, TYP, THREADS, ASH))

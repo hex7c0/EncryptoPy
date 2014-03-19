@@ -4,7 +4,7 @@ Created on 20/set/2013
 
 @package EncryptoPy
 @subpackage module
-@version 0.4
+@version 0.5
 @author 0x7c0 <0x7c0@teboss.tk>
 @copyright Copyright (c) 2013, 0x7c0
 @license http://www.gnu.org/licenses/gpl.html GPL v3 License
@@ -301,9 +301,13 @@ class HasCrypto(Process):
         '''
 
         try:
-            from modules.hash import Hash
             gett = self.que[0].get    # read
-            crypto = Hash(self.info[1])
+            if(self.who[1] == 'H'):
+                from modules.hash import Hash
+                crypto = Hash(self.info[1])
+            elif(self.who[1] == '3'):
+                from modules.keccak import Hash
+                crypto = Hash(self.info[1])
             code = crypto.hash.update
 
             while True:
@@ -312,6 +316,7 @@ class HasCrypto(Process):
                 if(not data[0]):
                     break
                 code(data[0])
+                break
 
             print(crypto.hash.hexdigest())
             self.que[0].cancel_join_thread()
@@ -449,6 +454,8 @@ class VigCrypto(Process):
         '''
 
         try:
+            gett = self.que[0].get    # read
+            putt = self.que[1].put_nowait    # write
             if(self.who[1] == 'V'):
                 from modules.vigenere import Vigenere
                 crypto = Vigenere(self.info[0])
@@ -464,8 +471,7 @@ class VigCrypto(Process):
             elif(self.who[1] == 'U'):
                 from modules.autokey import Autokey
                 crypto = Autokey(self.info[0])
-            gett = self.que[0].get    # read
-            putt = self.que[1].put_nowait    # write
+
             if(self.info[2][0] == 'E'):
                 code = crypto.encrypt
             else:

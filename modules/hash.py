@@ -5,7 +5,7 @@ Created on 17/set/2013
 @link http://docs.python.org/3.3/library/hashlib.html
 @package EncryptoPy
 @subpackage modules
-@version 0.4
+@version 0.5
 @author 0x7c0 <0x7c0@teboss.tk>
 @copyright Copyright (c) 2013, 0x7c0
 @license http://www.gnu.org/licenses/gpl.html GPL v3 License
@@ -17,7 +17,7 @@ from hashlib import new
 
 class Hash(object):
     '''
-    hmac
+    hash
 
     @param integer size:        type of hash [0,1,3,4,5,160,224,256,384,512]
     @return object
