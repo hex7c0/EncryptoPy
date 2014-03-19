@@ -300,10 +300,8 @@ class IMngr(Thread):
                 from core.process import VigCrypto as Crypto
             elif (typ == 'P'):
                 from core.process import VigCrypto as Crypto
-            #==================================================================
-            # elif (typ == 'F'):
-            #     from core.process import BloCrypto as Crypto
-            #==================================================================
+            elif (typ == 'F'):
+                from core.process import BloCrypto as Crypto
             elif (typ == 'E'):
                 from core.process import VigCrypto as Crypto
             elif (typ == 'S'):

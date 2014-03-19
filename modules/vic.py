@@ -268,12 +268,3 @@ class Vic(object):
                 out.append(i)
 
         return self.restore(magic(buffer, out))
-
-
-a = Vic('ciao', 'E')
-r = a.coding(b'ATTACK at DAWN')
-print(a.bookmark)
-print(r)
-a = Vic('ciao', 'D')
-print(a.coding(r))
-print(a.bookmark)

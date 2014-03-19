@@ -5,7 +5,7 @@ Created on 09/mar/2014
 @link http://en.wikipedia.org/wiki/Morse_code
 @package EncryptoPy
 @subpackage modules
-@version 0.4
+@version 0.5
 @author 0x7c0 <0x7c0@teboss.tk>
 @copyright Copyright (c) 2013, 0x7c0
 @license http://www.gnu.org/licenses/gpl.html GPL v3 License

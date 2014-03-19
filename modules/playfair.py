@@ -5,7 +5,7 @@ Created on 17/set/2013
 @link http://en.wikipedia.org/wiki/Playfair_cipher
 @package EncryptoPy
 @subpackage modules
-@version 0.4
+@version 0.5
 @author 0x7c0 <0x7c0@teboss.tk>
 @copyright Copyright (c) 2013, 0x7c0
 @license http://www.gnu.org/licenses/gpl.html GPL v3 License
@@ -15,6 +15,7 @@ Created on 17/set/2013
 from string import ascii_letters, digits
 from base64 import b64encode
 from collections import defaultdict
+
 
 MATRIX = 8
 LIMIT_E = MATRIX - 1

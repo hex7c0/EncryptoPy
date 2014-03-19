@@ -457,12 +457,11 @@ if __name__ == '__main__':
                 TYPE = 'playfair'
                 SIZE = 0
 
-            #==================================================================
-            # elif(TYPE == 'blow'):
-            #     TYP = 'F'
-            #     TYPE = 'blowfish'
-            #     SIZE = 0
-            #==================================================================
+            elif(TYPE == 'blow'):
+                pass
+                TYP = 'F'
+                TYPE = 'blowfish'
+                SIZE = 0
 
             elif(TYPE == 'caes'):
                 TYP = 'E'
@@ -511,6 +510,7 @@ if __name__ == '__main__':
                 SIZE = 0
 
             elif(TYPE == 'vic'):
+                pass
                 FLAG = True
                 TYP = 'I'
                 TYPE = 'vic'

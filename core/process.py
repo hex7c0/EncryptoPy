@@ -496,99 +496,85 @@ class VigCrypto(Process):
         return
 
 
-#==============================================================================
-# class BloCrypto(Process):
-#     '''
-#     wrapper class for encoding with blowfish
-#
-#     # inside info
-#     string psw    user password
-#     int size    for encryption module
-#     char action    'E' for encryption or 'D' for decryption
-#     char typ    type of encryption module
-#     integer proc    number of process for crypto
-#     string ash    header hash
-#
-#     # inside que
-#     queue    queue for read data
-#     queue    queue for write data
-#
-#     @param tuple who:    see above
-#     @param tuple info:    see above
-#     @param list que:    see above
-#     @return object
-#     '''
-#
-#     def __init__(self, who, info, que):
-#         Process.__init__(self)
-#         self.info = info
-#         self.que = que
-#         self.who = who
-#
-#     def run(self):
-#         '''
-#         start process
-#
-#         @return void
-#         '''
-#
-#         try:
-#             from modules.blowfish import Blowfish
-#             self.crypto = Blowfish(self.info[0])
-#             gett = self.que[0].get    # read
-#             putt = self.que[1].put_nowait    # write
-#
-#             temp = bytearray()
-#             app = temp.append
-#             rev = dat = ''
-#
-#             if(self.info[2][0] == 'E'):
-#                 code = self.crypto.encrypt
-#                 while True:
-#                     # data from read
-#                     data, seq = gett()
-#                     if(not data):
-#                         break
-#                     for ord_i in data:
-#                         app(ord_i)
-#                         if(len(temp) == 8):
-#                             dat += code(temp)
-#                             del temp[0:8]
-#
-#                     putt((dat.encode(), seq))
-#                     dat = ''
-#
-#             else:
-#                 code = self.crypto.decrypt
-#                 while True:
-#                     # data from read
-#                     data, seq = gett()
-#                     if(not data):
-#                         break
-#                     for ord_i in data:
-#                         rev += chr(ord_i)
-#                         if(len(rev) == 8):
-#                             dat += code(rev)
-#                             rev = ''
-#
-#                     for ord_i in dat:
-#                         app(ord(ord_i))
-#                     print(len(temp))
-#                     putt((temp, seq))
-#                     dat = ''
-#                     del temp[0:len(temp)]
-#
-#             self.que[0].cancel_join_thread()
-#             self.que[1].close()
-#         except Empty:
-#             pass
-#         except ImportError:
-#             pass
-#         except KeyboardInterrupt:    # Ctrl + C
-#             pass
-#
-#         return
-#==============================================================================
+class BloCrypto(Process):
+    '''
+    wrapper class for encoding with blowfish
+
+    @param tuple who:    see above
+    @param tuple info:    see above
+    @param list que:    see above
+    @return object
+    '''
+
+    def __init__(self, who, info, que):
+        Process.__init__(self)
+        self.info = info
+        self.que = que
+        self.who = who
+
+    def run(self):
+        '''
+        start process
+
+        @return void
+        '''
+
+        try:
+            from modules.blowfish import Blowfish
+            self.crypto = Blowfish(self.info[0])
+            gett = self.que[0].get    # read
+            putt = self.que[1].put_nowait    # write
+
+            temp = bytearray()
+            app = temp.append
+            rev = dat = ''
+
+            if(self.info[2][0] == 'E'):
+                code = self.crypto.encrypt
+                while True:
+                    # data from read
+                    data, seq = gett()
+                    if(not data):
+                        break
+                    for ord_i in data:
+                        app(ord_i)
+                        if(len(temp) == 8):
+                            dat += code(temp)
+                            del temp[0:8]
+
+                    putt((dat.encode(), seq))
+                    dat = ''
+
+            else:
+                code = self.crypto.decrypt
+                while True:
+                    # data from read
+                    data, seq = gett()
+                    if(not data):
+                        break
+                    for ord_i in data:
+                        rev += chr(ord_i)
+                        if(len(rev) == 8):
+                            dat += code(rev)
+                            rev = ''
+
+                    for ord_i in dat:
+                        app(ord(ord_i))
+                    print(len(temp))
+                    putt((temp, seq))
+                    dat = ''
+                    del temp[0:len(temp)]
+
+            self.que[0].cancel_join_thread()
+            self.que[1].close()
+        except Empty:
+            pass
+        except ImportError:
+            pass
+        except KeyboardInterrupt:    # Ctrl + C
+            pass
+
+        return
 
 
 class LetCrypto(Process):
@@ -657,7 +643,7 @@ class RccCrypto(Process):
         self.who = who
 
         f_iv = 'iv_%s' % info[5][IV_S:IV_E]
-        if(who == 0 and self.info[2][0] == 'E' and self.info[1] == 2):
+        if(who[0] == 0 and self.info[2][0] == 'E' and self.info[1] == 2):
             self.ivv = u_ut_iv(128)
             with open(f_iv, 'wb') as file:
                 file.write(dumps(self.ivv))
@@ -788,7 +774,7 @@ class NihCrypto(Process):
         self.who = who
 
         f_iv = 'iv_%s' % info[5][IV_S:IV_E]
-        if(who == 0 and self.info[2][0] == 'E'):
+        if(who[0] == 0 and self.info[2][0] == 'E'):
             self.ivv = u_ut_iv(info[1], 'S')
             with open(f_iv, 'wb') as file:
                 file.write(dumps(self.ivv))
