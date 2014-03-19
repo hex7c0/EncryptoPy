@@ -20,7 +20,12 @@ type of encryption/hash/checksum:
 	* morse
 	* leet
 	* rc		rc2, rc4
-	* one_time_pad
+	* one_time_password
+	* nihilist
+	* vic
+	* autokey
+	* sha3		sha3_224, sha3_256, sha3_384, sha3_512
+	
 
 future implementation:
 
@@ -48,3 +53,4 @@ thanks a lot for python modules
 * Des - Todd Whiteman (http://twhiteman.netfirms.com/)
 * Blowfish - Michael Gilfix (mgilfix@eecs.tufts.edu)
 * Rc2 - 0xEBFE (http://www.0xebfe.net/)
+* Sha3 - Renaud Bauvin (http://keccak.noekeon.org/)

@@ -16,5 +16,5 @@
         * add Des, Caesar, Morse, Leet modules
         * remove blowfish (bugged), will be inserted at new release
     0.5 (alpha)
-        * add Rc2, Rc4, One Time Pad
+        * add Rc2, Rc4, One Time Pad, Nihilist, Vic, Autokey, Sha3
         * now support encryption with chipher in row (cascade style)
