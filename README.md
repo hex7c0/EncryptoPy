@@ -14,8 +14,9 @@ type of encryption/hash/checksum:
 	* hash		sha0, sha1, dsa, md4, md5, ripmed160, sha224, sha256, sha384, sha512
 	* hmac		
 	* crc		crc32, adler32
-	* vigenère	
-	* playfair	
+	* vigenère
+	* playfair
+	* blowfish
 	* caesar
 	* morse
 	* leet
