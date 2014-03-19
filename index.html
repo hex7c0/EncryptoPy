@@ -32,14 +32,14 @@
 <a name="encryptopy" class="anchor" href="#encryptopy"><span class="octicon octicon-link"></span></a>EncryptoPy</h1>
 
 <h3>
-<a name="encrypt--decrypt-your-file-with-python3" class="anchor" href="#encrypt--decrypt-your-file-with-python3"><span class="octicon octicon-link"></span></a>encrypt / decrypt your file with python3!</h3>
+<a name="encrypt--decrypt-your-file-with-python3-even-in-row" class="anchor" href="#encrypt--decrypt-your-file-with-python3-even-in-row"><span class="octicon octicon-link"></span></a>encrypt / decrypt your file with python3 (even in row)!</h3>
 
 <p><em>all modules are written in pure Python, so you don't need to compile it (or make setup)</em></p>
 
 <p>type of encryption/hash/checksum:</p>
 
-<pre><code>* ae        128, 192, 256
-* de        des, triple_des
+<pre><code>* aes       128, 192, 256
+* des       des, triple_des
 * base      16, 32, 64
 * xor       
 * hash      sha0, sha1, dsa, md4, md5, ripmed160, sha224, sha256, sha384, sha512
@@ -50,12 +50,17 @@
 * caesar
 * morse
 * leet
+* rc        rc2, rc4
+* one_time_password
+* nihilist
+* vic
+* autokey
+* sha3      sha3_224, sha3_256, sha3_384, sha3_512
 </code></pre>
 
 <p>future implementation:</p>
 
 <pre><code>* multiple file input
-* encryption with chipher in row
 </code></pre>
 
 <h1></h1>
@@ -81,6 +86,8 @@
 <li>Aes - Alex Martelli (<a href="http://www.aleax.it">http://www.aleax.it</a>)</li>
 <li>Des - Todd Whiteman (<a href="http://twhiteman.netfirms.com/">http://twhiteman.netfirms.com/</a>)</li>
 <li>Blowfish - Michael Gilfix (<a href="mailto:mgilfix@eecs.tufts.edu">mgilfix@eecs.tufts.edu</a>)</li>
+<li>Rc2 - 0xEBFE (<a href="http://www.0xebfe.net/">http://www.0xebfe.net/</a>)</li>
+<li>Sha3 - Renaud Bauvin (<a href="http://keccak.noekeon.org/">http://keccak.noekeon.org/</a>)</li>
 </ul>
         </section>
 
@@ -101,6 +108,16 @@
       </div>
     </div>
 
-  
+            <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-49163106-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
   </body>
 </html>
