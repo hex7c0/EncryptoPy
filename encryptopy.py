@@ -284,8 +284,6 @@ if __name__ == '__main__':
                          default=False, help='use default key')
     GROUP_1.add_argument('-f', '--force', action='store_true', \
                          default=False, help='force True option')
-    GROUP_1.add_argument('-T', '--test', action='store_true', \
-                         default=False, help='test all modules')
 
     GROUP_2 = PARSER.add_argument_group(title='optional parameters')
     GROUP_2.add_argument('-t', metavar='Threads', nargs=1, type=int, \
@@ -551,18 +549,14 @@ if __name__ == '__main__':
             ACTION = 'E'    # override
             QUESTION = 'encrypt'
             THREADS = 1
-        if(not ARGS.test):
-            if(u_file_exists(NAME) and NAME != ROOT and not FORCE and not ASH):
-                if(not u_user_input(\
-                    r'New file already exist, do you wanna proceed? [Y/N] ')):
-                    m_quit()
-            if(FLAG):
-                PSW = u_user_check(r'[A-Za-z0-9@#$%^&+=]{6,20}', \
-                                  'Insert your password: ')
-            QUESTION = 'Do you wanna %s your file with ' % QUESTION
-        else:
-            PSW = u_ut_crypto('test')
-            FORCE = True
+        if(u_file_exists(NAME) and NAME != ROOT and not FORCE and not ASH):
+            if(not u_user_input(\
+                r'New file already exist, do you wanna proceed? [Y/N] ')):
+                m_quit()
+        if(FLAG):
+            PSW = u_user_check(r'[A-Za-z0-9@#$%^&+=]{6,20}', \
+                              'Insert your password: ')
+        QUESTION = 'Do you wanna %s your file with ' % QUESTION
         for i in range(COUNTER):    # reset
 
             if(i > 0):
