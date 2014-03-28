@@ -13,6 +13,14 @@ Created on 10/set/2013
 '''
 
 
+# check version
+from sys import version_info
+if(version_info[0] < 3):
+    print('must use Python 3 or greater')
+    quit()
+del version_info
+
+
 try:
     import gc
     from time import time
@@ -95,11 +103,13 @@ class Main(object):
         self.class_w = []    # write class
         self.class_c = []    # process class
 
-        for ii in range(1, others[3]):
-            t = NamedTemporaryFile(prefix=__name__, suffix='_r', delete=False)
-            self._tmp_r.append(t.name)
-            t = NamedTemporaryFile(prefix=__name__, suffix='_w', delete=False)
-            self._tmp_w.append(t.name)
+        for iii in range(1, others[3]):
+            t_file = NamedTemporaryFile(prefix=__name__, suffix='_r', \
+                                        delete=False)
+            self._tmp_r.append(t_file.name)
+            t_file = NamedTemporaryFile(prefix=__name__, suffix='_w', \
+                                        delete=False)
+            self._tmp_w.append(t_file.name)
         self.magic()
 
     def magic(self):
@@ -156,7 +166,7 @@ class Main(object):
         count = self._counter
         ash = not self.others[2][count]    # typ hash
         self.__time = time()
-        print('reading %s° round... ' % (count + 1), end='')
+        print('reading %s° round... ' % (count + 1))
 
         # start
         self.class_r[count].start()
@@ -172,7 +182,7 @@ class Main(object):
         self.__time = time()    # reset
 
         if(ash):
-            print('working %s° round... ' % (count + 1), end='')
+            print('working %s° round... ' % (count + 1))
         self.class_c[count].join()
         self.class_w[count].join()
         if(ash):
@@ -305,9 +315,9 @@ if __name__ == '__main__':
         CASCADE = []
         HASH = []
         L_TYPE = []
-        app1 = CASCADE.append
-        app2 = HASH.append
-        app3 = L_TYPE.append
+        APP1 = CASCADE.append
+        APP2 = HASH.append
+        APP3 = L_TYPE.append
 
         # name problem
         FORCE = ARGS.force
@@ -458,9 +468,11 @@ if __name__ == '__main__':
 
             elif(TYPE == 'blow'):
                 pass
-                TYP = 'F'
-                TYPE = 'blowfish'
-                SIZE = 0
+                #==============================================================
+                # TYP = 'F'
+                # TYPE = 'blowfish'
+                # SIZE = 0
+                #==============================================================
 
             elif(TYPE == 'caes'):
                 TYP = 'E'
@@ -510,10 +522,12 @@ if __name__ == '__main__':
 
             elif(TYPE == 'vic'):
                 pass
-                FLAG = True
-                TYP = 'I'
-                TYPE = 'vic'
-                SIZE = 0
+                #==============================================================
+                # FLAG = True
+                # TYP = 'I'
+                # TYPE = 'vic'
+                # SIZE = 0
+                #==============================================================
 
             elif(TYPE == 'auto'):
                 FLAG = True
@@ -538,9 +552,9 @@ if __name__ == '__main__':
                     TYPE = 'sha3_224'
 
             COUNTER += 1
-            app1((PSW, SIZE, ACTION, TYP, THREADS, ASH))
-            app2(ASH)
-            app3(TYPE)
+            APP1((PSW, SIZE, ACTION, TYP, THREADS, ASH))
+            APP2(ASH)
+            APP3(TYPE)
             if(ASH):
                 break
 
@@ -589,7 +603,7 @@ if __name__ == '__main__':
                 FILE, CASCADE, OTHERS, \
                 ROOT, NAME, PSW, SIZE, ACTION, FLAG, FORCE, \
                 QUESTION, TYPE, TYP, CYCLE, THREADS, ASH, COUNTER, \
-                HASH, L_TYPE, app1, app2, app3, ah, i
+                HASH, L_TYPE, APP1, APP2, APP3, ah
             del dirname, join, cpu_count, ArgumentParser, ArgumentTypeError, \
                 u_user_input, u_user_check, u_file_size, u_dir_abs, \
                 u_ut_crypto, m_file, m_ext
