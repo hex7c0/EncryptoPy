@@ -3,7 +3,7 @@
 
     0.1 (alpha)
         * was born EncryptoPy
-        * add Aes, Base, Xor Hash, Hmac, Crc modules
+        * add Aes, Base, Xor, Hash, Hmac, Crc modules
     0.2 (alpha)
         * add Vigenère, Playfair modules
         * remodeled in modules
@@ -18,3 +18,4 @@
     0.5 (alpha)
         * add Rc2, Rc4, One Time Pad, Nihilist, Vic, Autokey, Sha3
         * now support encryption with chipher in row (cascade style)
+        * check python interpreter
