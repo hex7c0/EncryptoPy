@@ -59,7 +59,7 @@ SIZE = [
             ]
 
 
-class Main(object):
+class Encryptopy(object):
     '''
     main class for initialize correct encrypt class, queue, read and write file
 
@@ -595,7 +595,7 @@ if __name__ == '__main__':
         if(FORCE or u_user_input(QUESTION)):
             FILE = (ROOT, NAME)
             OTHERS = (ARGS.remove, CYCLE, HASH, COUNTER, ARGS.stat)
-            RUN = Main(FILE, CASCADE, OTHERS)
+            RUN = Encryptopy(FILE, CASCADE, OTHERS)
 
             # clean
             del BUFFER, EXT, MODULES, VERSION, \
