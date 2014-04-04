@@ -21,7 +21,7 @@ try:
 except ImportError as error:
     print('In %s cannot load required libraries: %s!' \
         % (__name__, error))
-    quit()
+    raise Exception
 
 
 BUFFER = 131072    # 128kb

@@ -10,6 +10,7 @@ Created on 20/set/2013
 @license http://www.gnu.org/licenses/gpl.html GPL v3 License
 '''
 
+
 '''
     #inside who
     integer who    number of process
@@ -29,10 +30,16 @@ Created on 20/set/2013
 '''
 
 
-from queue import Empty
-from multiprocessing import Process
-from pickle import loads, dumps
-from core.utility import u_ut_iv
+try:
+    from queue import Empty
+    from multiprocessing import Process
+    from pickle import loads, dumps
+    # personal
+    from core.utility import u_ut_iv
+except ImportError as error:
+    print('In %s cannot load required libraries: %s!' \
+        % (__name__, error))
+    raise Exception
 
 
 TIMEOUT = 1

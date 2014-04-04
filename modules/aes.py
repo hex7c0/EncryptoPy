@@ -738,8 +738,7 @@ class AESModeOfOperation(object):
 
 def encrypt_data(key, data, mode=AESModeOfOperation.modeOfOperation['CBC']):
     '''
-    encrypt `data` using `key`
-    `key` should be a string of bytes.
+    encrypt data using key key should be a string of bytes
     returned cipher is a string of bytes prepended with the initialization
     vector.
     '''
@@ -764,10 +763,9 @@ def encrypt_data(key, data, mode=AESModeOfOperation.modeOfOperation['CBC']):
 
 def decrypt_data(key, data, mode=AESModeOfOperation.modeOfOperation['CBC']):
     '''
-    decrypt `data` using `key`
-    `key` should be a string of bytes.
-    `data` should have the initialization vector
-    prepended as a string of ordinal values.
+    decrypt data using key key should be a string of bytes
+    data should have the initialization vector
+    prepended as a string of ordinal values
     '''
 
     # #key = map(ord, key)
@@ -788,8 +786,8 @@ def decrypt_data(key, data, mode=AESModeOfOperation.modeOfOperation['CBC']):
 
 def generate_random_key(keysize):
     '''
-    Generates a key from random data of length `keysize`.
-    The returned key is a string of bytes.
+    Generates a key from random data of length keysize
+    The returned key is a string of bytes
     '''
 
     if(keysize not in (16, 24, 32)):

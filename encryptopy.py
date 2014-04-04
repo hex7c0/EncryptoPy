@@ -13,15 +13,14 @@ Created on 10/set/2013
 '''
 
 
-# check version
-from sys import version_info
-if(version_info[0] < 3):
-    print('must use Python 3 or greater')
-    quit()
-del version_info
-
-
 try:
+    # check version
+    from sys import version_info
+    if(version_info[0] < 3):
+        print('must use Python 3 or greater')
+        quit()
+    del version_info
+    # import
     import gc
     from time import time
     from os.path import dirname, join
@@ -31,9 +30,9 @@ try:
     from argparse import ArgumentParser, ArgumentTypeError
     # personal
     from core.thread import BUFFER, IRead, IWrit, IMngr
-    from core.utility import u_dir_abs, u_user_input, u_user_check, \
+    from core.utility import u_user_input, u_user_check, \
                             u_file_exists, u_file_del, u_file_size, \
-                            u_ut_crono, u_ut_crypto
+                            u_ut_crono, u_ut_crypto, u_dir_abs
 except ImportError as error:
     print('In %s cannot load required libraries: %s!' \
         % (__name__, error))

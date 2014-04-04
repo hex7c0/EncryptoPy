@@ -12,7 +12,12 @@ Created on 17/mar/2014
 '''
 
 
-from modules.common.polybious import Polybious, MATRIX
+try:
+    from modules.common.polybious import Polybious, MATRIX
+except ImportError as error:
+    print('In %s cannot load required libraries: %s!' \
+          % (__name__, error))
+    raise Exception
 
 
 class Nihi(Polybious):

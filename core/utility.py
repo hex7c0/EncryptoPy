@@ -11,12 +11,17 @@ Created on 10/set/2013
 '''
 
 
-from re import match
-from os import urandom
-from getpass import getpass
-from os import path, remove
-from hashlib import md5, sha512
-from time import time, gmtime, strftime
+try:
+    from re import match
+    from os import urandom
+    from getpass import getpass
+    from os import path, remove
+    from hashlib import md5, sha512
+    from time import time, gmtime, strftime
+except ImportError as error:
+    print('In %s cannot load required libraries: %s!' \
+        % (__name__, error))
+    raise Exception
 
 
 LIMIT = 8
