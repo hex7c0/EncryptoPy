@@ -33,15 +33,15 @@ class Autokey(object):
 
         out = bytearray()
         app = out.append
-        chiper = len(self._key)
         first = list(self._key)
+        cipher = len(first)
         counter = 0
 
         for i in raw:
             if(first):
                 i = (i + first.pop(0)) % 256
             else:
-                i = (i + raw[counter - chiper]) % 256
+                i = (i + raw[counter - cipher]) % 256
             counter += 1
             app(i)
         return out
@@ -56,15 +56,15 @@ class Autokey(object):
 
         out = bytearray()
         app = out.append
-        chiper = len(self._key)
         first = list(self._key)
+        cipher = len(first)
         counter = 0
 
         for i in raw:
             if(first):
                 i = (i - first.pop(0)) % 256
             else:
-                i = (i - out[counter - chiper]) % 256
+                i = (i - out[counter - cipher]) % 256
             counter += 1
             app(i)
         return out
