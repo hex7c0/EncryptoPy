@@ -1,5 +1,6 @@
 # EncryptoPy
 
+[![Build Status](https://travis-ci.org/hex7c0/EncryptoPy.svg?branch=master)](https://travis-ci.org/hex7c0/EncryptoPy)
 
 ### encrypt / decrypt your file with python3 (even in row)!
 
